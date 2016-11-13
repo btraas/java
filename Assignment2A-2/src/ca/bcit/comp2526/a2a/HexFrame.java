@@ -26,7 +26,9 @@ public class HexFrame extends GameFrame {
     private static final String TITLE = "Assignment 2a - HexFrame";
     
     private static final int PANEL_WIDTH = 1100;
-    private static final int WORLD_SIZE = Settings.getInt("WorldSize");
+    private static final int WORLD_SIZE_X = Settings.getInt("WorldSizeX");
+    private static final int WORLD_SIZE_Y = Settings.getInt("WorldSizeY");
+
     private static final Font DEFAULT_FONT = new Font("Verdana", Font.BOLD, 12);
     private static final double POINT1_DIVISOR = 3.7;
     private static final double POINT2_DIVISOR = 4.2;
@@ -50,7 +52,7 @@ public class HexFrame extends GameFrame {
         setTitle(TITLE);
         
         // HexPanel is an inner class below.
-        add(new HexPanel(world, WORLD_SIZE, PANEL_WIDTH));
+        add(new HexPanel(world, WORLD_SIZE_X, WORLD_SIZE_Y, PANEL_WIDTH));
         addMouseListener(new TurnListener(this));
     }
     
@@ -71,7 +73,8 @@ public class HexFrame extends GameFrame {
         
         private World world;
         private int width;
-        private int size;
+        private int sizeX;
+        private int sizeY;
 
         /**
          * Instantiates a HexPanel.
@@ -80,10 +83,11 @@ public class HexFrame extends GameFrame {
          * @param size of the World / HexPanel.
          * @param width of the panel.
          */
-        private HexPanel(final World world, int size, int width) {
+        private HexPanel(final World world, int sizeX, int sizeY, int width) {
             this.world = world;
             this.width = width;
-            this.size = size;
+            this.sizeX = sizeX;
+            this.sizeY = sizeY;
         
         }
       
@@ -107,7 +111,7 @@ public class HexFrame extends GameFrame {
             int point2 = (int)(width / POINT2_DIVISOR);
             Point origin = new Point(point1, point2);
             
-            drawGrid(g2d, origin, size, GRID_RADIUS);
+            drawGrid(g2d, origin, sizeX, sizeY, GRID_RADIUS);
         }
         
         /*
@@ -119,18 +123,18 @@ public class HexFrame extends GameFrame {
          * @param size - (int) number of cells in each direction.
          * @param radius - (int) set the size of each hexagon.
          */
-        private void drawGrid(final Graphics graphics, final Point origin, int size, int radius) {
+        private void drawGrid(final Graphics graphics, final Point origin, int sizeX, int sizeY, int radius) {
           
           
             double offX = Math.cos(ANGLE_30) * radius;
             double offY = Math.sin(ANGLE_30) * radius;
-            int half = (int)(size * HALF);
+            int half = (int)(sizeY * HALF);
       
-            for (int row = 0; row < size; row++) {
+            for (int row = 0; row < sizeY; row++) {
 
                 // Check if even without using magic number 2
                 //  If not even, use one less column for this row.
-                int cols = ((row & 1) == 0) ? size : size - 1;
+                int cols = ((row & 1) == 0) ? sizeX : sizeX - 1;
                 for (int col = 0; col < cols; col++) {
                     
                 

@@ -1,6 +1,8 @@
 package ca.bcit.comp2526.a2b;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -14,50 +16,50 @@ import java.util.Random;
  * @author Brayden Traas
  * @version 2016-10-22
  */
+@SuppressWarnings("serial")
 public abstract class Animal extends Life implements Moveable<Cell> {
 
     
     
-    private static final String NO_MOVES =              "No moves found...";
-    private static final String UNHANDLED_SCENARIO =    "Unable to handle scenario!";
-    private static final String ATTEMPTED_MOVE =        "attempted to move a";
-    private static final String FROM =                  "from Cell";
-    private static final String TO =                    "to Cell";
-    private static final String CONTAINING =            "containing a";
+    //private static final String NO_MOVES =              "No moves found...";
   
-    protected int foodSupply;
+    //protected int foodSupply;
+    private int eatAmount;
     
-    protected int minMove = 1;
-    protected int maxMove = 1;
+    private int minMove;
+    private int maxMove;
+    
+    protected Class<?>[] invalidMoveToTypes;
   
-    public Animal(Cell location, Color color, int initialFood) {
-        super(location, color);
-        foodSupply = initialFood;  
+    public Animal(Cell location, Color color, 
+    				int initialFood,
+    				int eatAmount,
+    				int minMove,
+    				int maxMove,
+    				Class<?>[] invalidMoveToTypes,
+    				Class<?>[] foodTypes) {
+        super(location, color, initialFood, foodTypes);
+        this.eatAmount = eatAmount;
+        this.minMove = minMove;
+        this.maxMove = maxMove;
+        this.invalidMoveToTypes = invalidMoveToTypes;
     }
 
-    // Child classes must define
-    
-    /**
-     * This Animal performs its eat action.
-     *  Can include updating food supply, 
-     *  reproduction etc.
-     */
-    public abstract void eat();
-    
     
     /**
      * Processes this Animal's turn. Must be implemented as per Life.
      */
     public void processTurn() {
         
-        // Age and die if we've run out of food.
-        if (--foodSupply < 0) {
-            this.getCell().setLife(null);
-            this.destroy();
-            return;
+        super.processTurn();
+        
+        // Dead.
+        if (this.getCell() == null) {
+        	return;
         }
         
-        this.move(); // and eat
+        this.move(); 
+        this.eat();
         this.reproduce();
     }
     
@@ -70,6 +72,73 @@ public abstract class Animal extends Life implements Moveable<Cell> {
     }
     
     /**
+     *  Gets a Herbivore's valid food types.
+     *  @return an array of valid types to eat.
+     */
+    public Class<?>[] getFoodTypes() {
+        return foodTypes;
+    }
+    
+
+    /**
+     * Gets the Life Types an animal can move into.
+     * @return an array of valid types to move into.
+     */
+    public Class<?>[] getInvalidMoveToTypes() {
+        return invalidMoveToTypes;
+    }
+    
+    /**
+     * Gets the possibilities to move to from here.
+     * @param types - allowable types we can move into.
+     * @param distanceMin - min distance possible to move.
+     * @param distanceMax - max distance possible to move.
+     * @return an array of possible destination Cells.
+     */
+    @Override
+    public Cell[] getMoveToPossibilities(final Class<?>[] invalidTypes, int min, int max) {
+        List<Cell> cells = new ArrayList<Cell>();
+        
+        
+        Cell[] possibilities = getCell().getNearbyCells(min, max);
+                
+        for (int i=0; i<possibilities.length; i++ ) {
+          
+            Cell newCell = possibilities[i];
+          
+            // If the found cell != this cell
+            if (newCell != null && newCell != this) {
+                
+            	// If defined types is null, we're allowing all types.
+                if ( invalidTypes == null || invalidTypes.length == 0) {
+                    cells.add(newCell);
+                    continue;
+                }
+            	
+                boolean occupiersValid = true;
+                boolean terrainValid = true;
+                
+                for (int k = 0; k < invalidTypes.length; k++) {
+                	// if one of the lives is this type, or this cell is this type.
+                    if (newCell.has(invalidTypes[k])) {
+                    	occupiersValid = false;
+                    } 
+                    if (invalidTypes[k].isInstance(newCell)) {
+                        terrainValid = false;
+                    }
+                }
+                
+                if (occupiersValid && terrainValid) {
+                	cells.add(newCell);
+                }
+            }
+        }
+        
+        return cells.toArray(new Cell[cells.size()]);   
+    }
+    
+    
+    /**
      * Gets all the possible move options for this animal.
      * @return an array of new locations (Cell objects)
      */
@@ -77,7 +146,7 @@ public abstract class Animal extends Life implements Moveable<Cell> {
         
         // getMoveToLifeTypes() and getMoveDistance() must be defined in child class, 
         //  as per interface.
-        return this.getCell().getMoveToPossibilities(getMoveToLifeTypes(), minMove, maxMove);
+        return this.getMoveToPossibilities(getInvalidMoveToTypes(), minMove, maxMove);
     }
     
     
@@ -124,63 +193,39 @@ public abstract class Animal extends Life implements Moveable<Cell> {
         
         //  System.out.println("Old cell: "+this.getCell().toString());
         // Clear current Cell's reference to this Life
-        this.getCell().setLife(null);
+        this.getCell().removeLife(this);
         
         
         // System.out.println("Moving to: "+newCell.getLocation().toString());
       
         if (newCell == null) {
-            System.out.println(NO_MOVES);
+        //    System.out.println(NO_MOVES);
             return;
         }
         
-        Life occupier = newCell.getLife();
         
-        // If there's something in this Cell already
-        if (occupier != null) {
-            Class<?>[] foodTypes = getFoodTypes();
-          
-            // Run through foods we can eat.
-            //  if the occupier of this cell is a type 
-            //  we can eat, then eat it.
-            boolean actionHappened = false;
-            for (int i = 0; i < foodTypes.length; i++) {
-                if (foodTypes[i].isInstance(occupier)) {
-                    this.eat();
-                    actionHappened = true;
-                    continue;
-                }
-            }
-            
-            // If there's an occupier but we didn't handle it...
-            if (!actionHappened) {
-                String msg = UNHANDLED_SCENARIO + "\n";
-                msg += ATTEMPTED_MOVE + " " + this.getClass() + " " + FROM + " "; 
-                msg += this.getCell().getLocation().toString();
-                
-                msg += " " + TO + " " + newCell.getLocation().toString()
-                    + " " + CONTAINING + " "; 
-                msg += occupier.getClass() + "\n";
-                
-                throw new RuntimeException(msg);
-            }
-          
-        }
         
         // Set two-way reference (to Cell & Life)
         this.setCell(newCell);
+        /*
         if (this.getCell().getLife() != null) {
             this.getCell().getLife().destroy();
         }
-        this.getCell().setLife(this);
+        */
+        this.getCell().addLife(this);
     }
- 
+    
     /**
-     * Gets the amount of food supply left.
-     * @return foodSupply (int)
+     * Defines what happens when an animal. Simply sets the food amount.
      */
-    public int getFoodSupply() {
-        return foodSupply;
+    public final void eat() {
+    	if (this.getCell().has(this.foodTypes) || this.getCell().is(this.foodTypes)) {
+    		Life food = this.getCell().getLife(this.foodTypes);
+    		this.getCell().removeLife(food);
+    		
+    		this.life = eatAmount;
+            this.color = originalColor;
+    	}
     }
     
 }

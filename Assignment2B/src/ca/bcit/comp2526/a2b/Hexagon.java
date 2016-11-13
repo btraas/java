@@ -33,7 +33,7 @@ public class Hexagon extends Polygon {
     private static final double DOUBLE_PI = Math.PI * 2;
     
     private Point[] points = new Point[SIDES];
-    private Point center = new Point(0, 0);
+    protected Point center = new Point(0, 0);
     private int radius;
     private int rotation = 90;
     
@@ -68,6 +68,10 @@ public class Hexagon extends Polygon {
         this(new Point(valueX, valueY), radius);
     }
   
+    // Gets the radius.
+    protected int getRadius() {
+    	return radius;
+    }
 
   
     /*
@@ -157,6 +161,8 @@ public class Hexagon extends Polygon {
         Color oldColor = graphics.getColor();
         Stroke oldStroke = graphics.getStroke();
       
+       // System.out.println(xpoints.length + " " + ypoints.length + " " + npoints);
+        
         if (filled) {
             graphics.fillPolygon(xpoints, ypoints, npoints);
         } else {
@@ -174,6 +180,7 @@ public class Hexagon extends Polygon {
      * 
      */
     public void paint(final Color newColor) {
+    //	System.out.println("Coloring hex " + this + "  with "+newColor);
         draw(graphics, valueX, valueY, thickness, newColor, true);
     }
     

@@ -10,6 +10,7 @@ import java.awt.Point;
 
 import javax.swing.JPanel;
 
+
 /**
  * <p>A Hex Frame.
  * Used for a hex grid (opposed to a square grid).</p>
@@ -27,22 +28,25 @@ public class HexFrame extends GameFrame {
     private static final String TITLE = "Assignment 2b - HexFrame";
     
    // private static final int PANEL_WIDTH = 1100;
-    private static final int WORLD_SIZE = Settings.getInt("WorldSize");
-    private static final Font DEFAULT_FONT = new Font("Verdana", Font.BOLD, 12);
+    private static final int WORLD_SIZE_X = Settings.getInt("WorldSizeX");
+    private static final int WORLD_SIZE_Y = Settings.getInt("WorldSizeY");
+    private static final Font DEFAULT_FONT = new Font("Verdana", Font.PLAIN, 10);
     
-    private static final double POINTX_MULTIPLIER = 11.25;
-    private static final double POINTY_MULTIPLIER = 9.8;
+    private static final double POINTX_MULTIPLIER = 1;//6.25;
+    private static final double POINTY_MULTIPLIER = 1;//5.8;
     
-    private static final double POINTX_OFFSET = 5;
-    private static final double POINTY_OFFSET = 13;
+    private static final double POINTX_OFFSET = 270;
+    private static final double POINTY_OFFSET = 250;
     
-    private static final int GRID_RADIUS = 13;
     private static final float STROKE_WIDTH = 2.0f;
     private static final double ANGLE_30 = Math.toRadians(30);
     
     private static final float HALF = 0.5f;
 //    private static final float DOUBLE = 2.0f;
     private static final float TRIPLE = 3.0f;
+    
+    private static final double EXPECTED_MAX = 25.0;
+    private int hexRadius = 12;
     
     public HexFrame(final World world) {
         super(world);
@@ -55,9 +59,15 @@ public class HexFrame extends GameFrame {
     public void init() {
         setTitle(TITLE);
         
+        int max = Math.max(WORLD_SIZE_X, WORLD_SIZE_Y);
+        double multiplier = (EXPECTED_MAX/max);
+        hexRadius = (int)(hexRadius * multiplier) + 1;
+        System.out.println("mult: "+multiplier+" hex:"+hexRadius);
+        
         // HexPanel is an inner class below.
-        add(new HexPanel(world, WORLD_SIZE));
+        add(new HexPanel(world, WORLD_SIZE_X, WORLD_SIZE_Y));
         addMouseListener(new TurnListener(this));
+        addKeyListener(new TurnListener(this));
     }
     
     /**
@@ -76,7 +86,8 @@ public class HexFrame extends GameFrame {
         private FontMetrics metrics;
         
         private World world;
-        private int size;
+        private int sizeX;
+        private int sizeY;
 
         /**
          * Instantiates a HexPanel.
@@ -85,9 +96,10 @@ public class HexFrame extends GameFrame {
          * @param size of the World / HexPanel.
          * @param width of the panel.
          */
-        private HexPanel(final World world, int size) {
+        private HexPanel(final World world, int sizeX, int sizeY) {
             this.world = world;
-            this.size = size;
+            this.sizeX = sizeX;
+            this.sizeY = sizeY;
         
         }
       
@@ -107,8 +119,8 @@ public class HexFrame extends GameFrame {
             g2d.setFont(font);
             metrics = graphics.getFontMetrics();
 
-            int point1 = (int)(size * POINTX_MULTIPLIER + POINTX_OFFSET);
-            int point2 = (int)(size * POINTY_MULTIPLIER + POINTY_OFFSET);
+            int point1 = (int)(sizeX * POINTX_MULTIPLIER + POINTX_OFFSET);
+            int point2 = (int)(sizeY * POINTY_MULTIPLIER + POINTY_OFFSET);
             
             //Point origin = new Point(width/2, width/2);
             Point origin = new Point(point1, point2);
@@ -118,7 +130,7 @@ public class HexFrame extends GameFrame {
             
             //Point origin = new Point((int)(11.2*size+5), (int)(9.8*size+15));
             
-            drawGrid(g2d, origin, size, GRID_RADIUS);
+            drawGrid(g2d, origin, sizeX, sizeY, hexRadius);
         }
         
         /*
@@ -130,25 +142,25 @@ public class HexFrame extends GameFrame {
          * @param size - (int) number of cells in each direction.
          * @param radius - (int) set the size of each hexagon.
          */
-        private void drawGrid(final Graphics graphics, final Point origin, int size, int radius) {
+        private void drawGrid(final Graphics graphics, final Point origin, int sizeX, int sizeY, int radius) {
           
           
             double offX = Math.cos(ANGLE_30) * radius;
             double offY = Math.sin(ANGLE_30) * radius;
-            int half = (int)(size * HALF);
+            int half = (int)(sizeY * HALF);
       
-            for (int row = 0; row < size; row++) {
+            for (int row = 0; row < sizeY; row++) {
 
                 // Check if even without using magic number 2
                 //  If not even, use one less column for this row.
-                int cols = ((row & 1) == 0) ? size : size - 1;
+                int cols = ((row & 1) == 0) ? sizeX : sizeX - 1;
                 for (int col = 0; col < cols; col++) {
                     
                 
                     int valueX = (int) (origin.x + offX * (col * 2 + 1 - cols));
                     int valueY = (int) (origin.y + offY * (row - half) * TRIPLE);
       
-                    drawHex(graphics, row, col, valueX, valueY, radius);
+                    drawHex(graphics, col, row, valueX, valueY, radius);
                 }
             }
         }
@@ -173,17 +185,21 @@ public class HexFrame extends GameFrame {
             
             // Create a Cell here if it doesn't exist.
             if (initHex == null) {
-                HexCell newHex = new HexCell(world, row, col, valueX, valueY, radius);
+                HexCell newHex = (HexCell) Creator.createCell(
+                		new HexCell(world, row, col, valueX, valueY, radius), 
+                		world.getSeed());
                 initHex = (HexCell)world.createCellAt(newHex, row, col);
             }
            
+            // System.out.println(graphics2d + " " + valueX + " " + valueY + " " + 0 + " " + initHex.emptyColor + " " + true);
+            
             // Draw Hexagon inner shape.
-            initHex.draw(graphics2d, valueX, valueY, 0, World.EMPTY_COLOR, true);
+            initHex.draw(graphics2d, valueX, valueY, 0, initHex.emptyColor, true);
             
             // Draw Hexagon outline.
             if (World.VISIBLE_LINES) {
                 initHex.draw(graphics2d, valueX, valueY, (int)STROKE_WIDTH, 
-                    World.BORDER_COLOR, false);
+                    Cell.BORDER_COLOR, false);
             }
         
             // Paint with the color if its life.
@@ -194,7 +210,7 @@ public class HexFrame extends GameFrame {
             int width = metrics.stringWidth(text);
             int height = metrics.getHeight();
             
-            graphics.setColor(World.TEXT_COLOR);
+            graphics.setColor(Cell.TEXT_COLOR);
             graphics.drawString(text, valueX - (int)( width * HALF ), 
                                 valueY + (int)( height * HALF ) );
         }

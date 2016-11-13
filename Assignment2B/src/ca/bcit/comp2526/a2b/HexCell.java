@@ -2,6 +2,7 @@ package ca.bcit.comp2526.a2b;
 
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +24,13 @@ public class HexCell extends Hexagon implements Cell {
     
     
     private static final String TYPE_AT = "Cell @";
-    private static final String CONTAINS = " containing a ";
     
     
     private World world;
     private Point location;
-    private Life occupier;
+    private ArrayList<Life> occupiers = new ArrayList<Life>();
+    
+    protected Color emptyColor = EMPTY_COLOR;
     
     /**
      * Instantiates a HexCell.
@@ -46,6 +48,16 @@ public class HexCell extends Hexagon implements Cell {
         this.world = world;
     }
     
+    
+    /**
+     * Gets the empty color.
+     * @return Color for backgrounds
+     */
+    @Override
+    public Color getEmptyColor() {
+    	return EMPTY_COLOR;
+    }
+    
     /**
      * Gets the location (Point) of this Cell.
      * @return location (Point)
@@ -55,59 +67,6 @@ public class HexCell extends Hexagon implements Cell {
         return location;
     }
 
-    /**
-     * Returns available cells within the given distance
-     *  and either empty or one of the valid types we can 
-     *  move 'into'. (ex. Herbivore can move into empty or
-     *  Plant-occupied Cells).
-     * @return adjacent cells
-     */
-    @Override
-    public Cell[] getMoveToPossibilities(final Class<?>[] types, int min, int max) {
-        List<Cell> cells = new ArrayList<Cell>();
-        
-        
-        Cell[] possibilities = getNearbyCells(min, max);
-                
-        for (int i=0; i<possibilities.length; i++ ) {
-          
-            Cell newCell = possibilities[i];
-          
-            // If the found cell != this cell
-            if (newCell != null && newCell != this) {
-                Life lifeInNewCell = newCell.getLife();
-                
-                // If the new Cell is empty, it's valid
-                if ( lifeInNewCell == null ) {
-                    cells.add(newCell);
-                    continue;
-                }
-                
-                // If defined types is null, we're allowing all types.
-                
-                if ( types == null ) {
-                    cells.add(newCell);
-                    continue;
-                }
-                
-                
-                // Run through each type of Life we can move into.
-                // If this is one of those types, it's valid.
-                
-                boolean added = false;
-                
-                for (int k = 0; k < types.length; k++) {
-                    if (!added && types[k].isInstance(lifeInNewCell)) {
-                        cells.add(newCell);
-                        added = true;
-                    }
-                }   
-            }
-        }
-        
-        return cells.toArray(new Cell[cells.size()]);   
-    }
-    
     /**
      * Gets the adjacent cells to this Cell
      * @return array of Cells that are adjacent to this one.
@@ -131,7 +90,8 @@ public class HexCell extends Hexagon implements Cell {
                     // special case for hex, not all within x / y distance
                     //  are within the true distance...
                     if (this.distance(newCell) > max || this.distance(newCell) < min) {
-                        continue;
+                       // System.err.println("invalid distance from "+this+" to "+newCell+" = "+this.distance(newCell));
+                    	continue;
                     }
                     
                     cells.add(newCell);
@@ -142,27 +102,65 @@ public class HexCell extends Hexagon implements Cell {
         return cells.toArray(new Cell[cells.size()]);
     }
     
-
+    private Cell[] getAdjacentCellsWithOrWithout(Class<?>[] types, boolean with) {
+        Cell[] all = getAdjacentCells();
+        ArrayList<Cell> valid = new ArrayList<Cell>();
+        
+        //System.out.println("Cell adj: "+all.length);
+        
+        boolean validTerrain = !with;
+        boolean validOccupiers = !with;
+        
+        for (int i=0; i<all.length; i++) {
+        	
+        	validTerrain = !with;
+        	validOccupiers = !with;
+        	
+            for (int j=0; j<types.length; j++) {
+            	
+            	
+                if ( (types[j] != null ) ) {
+                
+                	if (all[i].has(types[j])) {
+                		validOccupiers = with;
+                	}
+                	if (types[j].isInstance(all[i])) {
+                		validTerrain = with;
+                	}
+                	
+                }
+            }
+            if (with && (validTerrain || validOccupiers)) {
+            	valid.add(all[i]);
+            } else if (validTerrain && validOccupiers) {
+            	valid.add(all[i]);
+            }
+        }
+         
+        return valid.toArray(new Cell[valid.size()]);
+        
+    }
+    
+    
     /**
      * Gets the adjacent cells to this Cell
      * @return an array of Cells that are adjacent and of the given types.
      */
     @Override
-    public Cell[] getAdjacentCells(Class<?>[] types) {
-        Cell[] all = getAdjacentCells();
-        ArrayList<Cell> valid = new ArrayList<Cell>();
-        
-        for (int i=0; i<all.length; i++) {
-            for (int j=0; j<types.length; j++) {
-                if ( (types[j] == null && all[i].getLife() == null)  
-                    || (types[j] != null && types[j].isInstance(all[i].getLife()))) {
-                    valid.add(all[i]);
-                }
+    public Cell[] getAdjacentCellsWithout(Class<?>[] invalidTypes) {
 
-            }
-        }
+    	return getAdjacentCellsWithOrWithout(invalidTypes, false);
         
-        return valid.toArray(new Cell[valid.size()]);
+    }
+    
+    /**
+     * Gets the adjacent cells to this Cell
+     * @return an array of Cells that are adjacent and of the given types.
+     */
+    @Override
+    public Cell[] getAdjacentCellsWith(Class<?>[] validTypes) {
+        
+    	return getAdjacentCellsWithOrWithout(validTypes, true);
         
     }
     
@@ -180,8 +178,8 @@ public class HexCell extends Hexagon implements Cell {
      * @return the occupier (Life)
      */
     @Override
-    public Life getLife() {
-        return occupier;
+    public ArrayList<Life> getLives() {
+        return occupiers;
     }
   
     /**
@@ -189,15 +187,85 @@ public class HexCell extends Hexagon implements Cell {
      * @param occupier to set
      */
     @Override
-    public void setLife(final Life occupier) {
+    public void addLife(final Life occupier) {
         //if(this.occupier != null) this.occupier.destroy(); // already done.
         
       
-        this.occupier = occupier;
-        Color newColor = occupier == null ? EMPTY_COLOR : occupier.getColor();
+        this.occupiers.add(occupier);
+        
+        int occupierCount = occupiers.size();
+        Life last = occupiers.get(occupierCount-1);
+        
+        // Get the new Color.
+        Color newColor = last == null ? emptyColor 
+        		: last.getColor();
         
         this.paint(newColor);
         
+    }
+    
+    
+    @Override
+    public void removeLife(final Life occupier) {
+    	if (occupier == null) {
+    		occupiers.clear();
+    		occupiers.trimToSize();
+    		return;
+    	}
+    	occupiers.remove(occupier);
+    	occupiers.trimToSize();
+    }
+    
+    @Override
+    public Life getLife(final Class<?> type) {
+    	for (Life occupier : occupiers) {
+    		if (type.isInstance(occupier)) {
+    			return occupier;
+    		}
+    	}
+    	return null;
+    	
+    }
+    
+    @Override
+    public Life getLife(final Class<?>[] types) {
+    	for (int i = 0; i < types.length; i++) {
+    		Life thisType = getLife(types[i]);
+    		if (thisType != null) {
+    			return thisType;
+    		}
+    	}
+    	return null;
+    }
+    
+    @Override
+    public boolean has(final Class<?> type) {
+    	return getLife(type) != null;
+    }
+    
+    @Override
+    public boolean has(final Class<?>[] types) {
+    	for (int i = 0; i < types.length; i++) {
+    		if (this.has(types[i])) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    @Override
+    public boolean is(final Class<?>[] types) {
+    	for (int i = 0; i < types.length; i++) {
+    		if (types[i].isInstance(this)) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    @Override
+    public Dimension getSize() {
+    	return new Dimension(this.getRadius()*2, getRadius() * 2);
     }
     
     /**
@@ -301,7 +369,7 @@ public class HexCell extends Hexagon implements Cell {
         
         // If on the same row
         if (this.getRow() == other.getRow()) {
-            return diffX;
+            return Math.abs(this.getColumn() - other.getColumn());
         }
  
         Point otherTheoretical = new Point(other.getLocation());
@@ -329,6 +397,8 @@ public class HexCell extends Hexagon implements Cell {
         //System.out.println("\n diffX:"+diffX+" dist1:"+dist1+" dist2:"+dist2 );
         int distance = Math.max(Math.max(dist1, dist2), (int)diffX);
               
+        //System.out.println("distance from "+this+" to "+other+" is "+distance);
+        
         return distance;
          
     }
@@ -337,7 +407,15 @@ public class HexCell extends Hexagon implements Cell {
      * Paints this Hexagon with its Occupier's Color.
      */
     public void paint() {
-        Color color = (occupier == null) ? EMPTY_COLOR : occupier.getColor();
+    	
+    	 Life last = occupiers.size() == 0 ? null :
+    		 occupiers.get(occupiers.size() - 1);
+         
+         // Get the new Color.
+         Color color = last == null ? emptyColor 
+         		: last.getColor();
+    	
+       // if (color == emptyColor) System.out.println("setting empty color "+emptyColor);
         super.paint(color);
     }
     
@@ -348,11 +426,14 @@ public class HexCell extends Hexagon implements Cell {
     @Override
     public String getText() {
     
+    	Life occupier = occupiers.size() == 0 ? null : 
+    		occupiers.get(occupiers.size() - 1);
+    	
         if (World.SHOW_FOOD
-            && occupier != null && occupier instanceof Animal) {
+            && occupier != null) {
           
             // Get food supply
-            int supply = ((Animal)occupier).getFoodSupply();
+            int supply = occupier.getLifeLeft();
             return "" + supply;
           
         } else if (World.SHOW_MOVES 
@@ -361,22 +442,26 @@ public class HexCell extends Hexagon implements Cell {
             Moveable<?> mover = (Moveable<?>)occupier;
           
             // Get types we can move into.
-            Class<?>[] types = mover.getMoveToLifeTypes();
+            Class<?>[] types = mover.getInvalidMoveToTypes();
 
             
             // Get the number of possible moves.
-            int moves = this.getMoveToPossibilities(
+            int moves = mover.getMoveToPossibilities(
                 types, mover.getMoveMin(), mover.getMoveMax()).length;
             return "" + moves;
         
         } else if (World.SHOW_COORDINATES) {
             
             // Simply ROWxCOL.
-            return location.x + "x" + location.y;
+            return location.x + "," + location.y;
         }
       
-        return "";
+        return " ";
       
+    }
+    
+    public void setText(String text) {
+    	
     }
     
     /**
@@ -385,9 +470,12 @@ public class HexCell extends Hexagon implements Cell {
      */
     @Override
     public String toString() {
-        String life = (getLife() == null ? "" : getLife().getClass().getSimpleName());
-        return TYPE_AT + getLocation().toString() + CONTAINS + life;
+        //String life = getLives().toString();
+        //return TYPE_AT + getLocation().toString() + CONTAINS + life;
+    	return TYPE_AT + getLocation().x + "," + getLocation().y;
     }
+
+	
    
     
 }

@@ -18,7 +18,10 @@ public class Creator {
     // Get chances from the Settings class (Settings file)
     private static final int plantChance = Settings.getInt("PlantChance");
     private static final int herbivoreChance = Settings.getInt("HerbivoreChance");
-    private static final int carnivoreChance = 10;
+    private static final int carnivoreChance = Settings.getInt("CarnivoreChance");
+    private static final int omnivoreChance  = Settings.getInt("OmnivoreChance");
+    
+    private static final int waterChance = Settings.getInt("WaterChance");
 
     private Creator() {} // Unable to instantiate
 
@@ -31,28 +34,48 @@ public class Creator {
      */
     public static Life createLife(final Cell loc, final Random seed) {
       
-        int percent = getNextPercent(seed);
-        if (percent <= carnivoreChance) {
-            return new Carnivore(loc);
-        }
-      
-        percent = getNextPercent(seed);
-        if (percent <= herbivoreChance) {
-            return new Herbivore(loc);
-        }
-      
-        // Get a new percent, because there's overlap with the previous check.
-        percent = getNextPercent(seed);
-        if (percent <= plantChance) {
+    	int plantPct = plantChance;
+    	int herbivorePct = herbivoreChance + plantPct;
+    	int carnivorePct = carnivoreChance + herbivorePct;
+    	int omnivorePct  = omnivoreChance  + carnivorePct;
+    	
+    	int percent = getNextPercent(seed);
+    	if (percent <= plantPct) {
             return new Plant(loc);
+        } else if (percent <= herbivorePct) {
+            return new Herbivore(loc);
+        } else if (percent <= carnivorePct) {
+            return new Carnivore(loc);
+        } else if (percent <= omnivorePct) {
+        	return new Omnivore(loc);
         }
-        
-        
-        
+      
         
         // Return null if we've made it this far.
         return null;
     }
+    
+    public static Cell createCell(final Cell origin, final Random seed) {
+    	if (origin == null) {
+    		return null;
+    	}
+    	
+    	int waterPct = waterChance;
+    	
+    	int percent = getNextPercent(seed);
+    	
+    	if (percent <= waterPct) {
+    	
+    		if (origin instanceof HexCell) {
+    			return new WaterHexCell((HexCell)origin);
+    		} else if (origin instanceof SquareCell) {
+    			return new WaterSquareCell((SquareCell)origin);
+    		}
+    	}
+    	
+    	return origin;
+    }
+    
   
     /*
      * Gets a new percent when given a seed.

@@ -13,15 +13,19 @@ import java.util.Random;
  * @version 2016-10-22
  */
 
+@SuppressWarnings("serial")
 public class Herbivore extends Animal {
 
     private static final Color COLOR = Color.YELLOW;
-    private static final int INITIAL_FOOD = 4;
-    private static final int EAT_AMOUNT = 5;
+    private static final int INITIAL_FOOD = 6;
+    private static final int EAT_AMOUNT = 6;
 
-    private static final Class<?>[] FOOD_TYPES = { Plant.class };
-    private static final Class<?>[] MOVE_TO_LIFE_TYPES = { Plant.class };
-    private static final Class<?>[] PREDATOR_TYPES = {};
+    private static final Class<?>[] FOOD_TYPES = { Plant.class, WaterCell.class };
+    private static final Class<?>[] INVALID_MOVE_TO_TYPES = { Animal.class };
+    private static final Class<?>[] PREDATOR_TYPES = { Carnivore.class, Omnivore.class };
+    
+    private static final int MIN_MOVE = 1;
+    private static final int MAX_MOVE = 1;
     
     private static final int MIN_REPRODUCE = 1;
     private static final int MAX_REPRODUCE = 2;
@@ -33,38 +37,24 @@ public class Herbivore extends Animal {
     
     
     public Herbivore(final Cell location) {
-        super(location, COLOR, INITIAL_FOOD);
+        super(location, COLOR, 
+        		INITIAL_FOOD,
+        		EAT_AMOUNT,
+        		MIN_MOVE,
+        		MAX_MOVE,
+        		INVALID_MOVE_TO_TYPES,
+        		FOOD_TYPES);
     
-        this.minReproduce = MIN_REPRODUCE;
-        this.maxReproduce = MAX_REPRODUCE;
-        this.reproduceNeighbors = MIN_REPRODUCE_NEIGHBORS;
-        this.reproduceEmptySpaces = MIN_REPRODUCE_EMPTY_SPACES;
-        this.reproduceFood = MIN_REPRODUCE_FOOD;
+        this.minReproduce 			= MIN_REPRODUCE;
+        this.maxReproduce 			= MAX_REPRODUCE;
+        this.reproduceNeighbors 	= MIN_REPRODUCE_NEIGHBORS;
+        this.reproduceEmptySpaces	= MIN_REPRODUCE_EMPTY_SPACES;
+        this.reproduceFood 			= MIN_REPRODUCE_FOOD;
+        
     }
   
-    /**
-     * Defines what happens when a Herbivore eats. Simply sets the food amount.
-     */
-    public void eat() {
-        this.foodSupply = EAT_AMOUNT;
-    }
     
-    /**
-     *  Gets a Herbivore's valid food types.
-     *  @return an array of valid types to eat.
-     */
-    public Class<?>[] getFoodTypes() {
-        return FOOD_TYPES;
-    }
     
-
-    /**
-     * Gets the Life Types a Herbivore can move into.
-     * @return an array of valid types to move into.
-     */
-    public Class<?>[] getMoveToLifeTypes() {
-        return MOVE_TO_LIFE_TYPES;
-    }
     
     /**
      * Creates a new Decision, given a Herbivore's level of intelligence,
@@ -81,10 +71,10 @@ public class Herbivore extends Animal {
       
         // Goal = foodSupply+1; Animal will follow food even if they can't quite make it.
 
-        int supply = foodSupply + 1;
-        return (new DistanceDecision(seed, options, 
-                FOOD_TYPES, PREDATOR_TYPES, getCell(), supply)).decide();
-        // return (new NearbyDecision(seed, options, FOOD_TYPES, PREDATOR_TYPES)).decide();  
+        //int supply = life + 1;
+        //return (new DistanceDecision(seed, options, 
+        //        FOOD_TYPES, PREDATOR_TYPES, getCell(), supply)).decide();
+         return (new NearbyDecision(seed, options, FOOD_TYPES, PREDATOR_TYPES)).decide();  
         // return (new NearbyFoodDecision(seed, options, FOOD_TYPES)).decide();
         // return (new MoveDecision(seed, options)).decide();
     }

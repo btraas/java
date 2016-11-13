@@ -22,10 +22,20 @@ public interface Moveable<DestinationT> {
     public void move();
     
     /**
-     *  Get Life types we can move into.
-     * @return an array of Class objects that this type can move "into".
+     *  Get Life types we can't move into.
+     * @return an array of Class objects that this type can not move "into".
      */
-    public Class<?>[] getMoveToLifeTypes();
+    public Class<?>[] getInvalidMoveToTypes();
+    
+    /**
+     * Get possibilities to move to.
+     * 
+     * @param types to move to
+     * @param min distance
+     * @param max distance
+     * @return array of Destination options.
+     */
+    public DestinationT[] getMoveToPossibilities(final Class<?>[] types, int min, int max);
     
     /**
      * Get minimum distance to travel.

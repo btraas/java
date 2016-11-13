@@ -16,10 +16,12 @@ import javax.swing.JFrame;
  */
 public final class Main {
     
-  
-    private static final boolean HEX_GRID; 
-    private static final int WORLD_SIZE;
-    
+	private static final String WORLD_SIZE_X = "worldSizeX";
+	private static final String WORLD_SIZE_Y = "worldSizeY";
+	
+	private static final String GRID_TYPE = "gridType";
+    private static final String HEX_GRID = "hex";
+	
     private static final float SCREENSIZE_MULTIPLIER = 0.8f;
     private static final String NULL_SIZE = "Size cannot be null";
     private static final float MAX_PCT = 100.0f;
@@ -38,18 +40,15 @@ public final class Main {
      */
     static {
       
-        Settings.load();
-      
-        TOOLKIT = Toolkit.getDefaultToolkit();
+    	TOOLKIT = Toolkit.getDefaultToolkit();
         
-        HEX_GRID = Settings.get("gridtype").equalsIgnoreCase("hex");
-        WORLD_SIZE = Settings.getInt("worldsize");    
     }
 
     /**
      * Private constructor prevents instantiation of Main.
      */
     private Main() {
+    	
     }
 
     /**
@@ -57,18 +56,28 @@ public final class Main {
      * @param argv command line arguments
      */
     public static void main(final String[] argv) throws IOException {
-        final World world; // You need a World class
+    	final Settings settings = new Settings();
+    	
+    	position(settings);
+        settings.init();
+        settings.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        settings.setVisible(true);
+    	
+    }
+    
+    public static void createWorld() throws IOException  {
+    	final World world; // You need a World class
         final GameFrame frame;
 
         // Now loaded at Main Class initialization, before main() method.
         //Settings.load();
         
-        world = new World(WORLD_SIZE, WORLD_SIZE);
+        world = new World(Settings.getInt(WORLD_SIZE_X), Settings.getInt(WORLD_SIZE_Y));
         world.init();
 
         // Load the grid type. Either Square or Hex.
         
-        if (HEX_GRID) {
+        if (Settings.get(GRID_TYPE).equalsIgnoreCase(HEX_GRID)) {
             frame = new HexFrame(world);
         } else {
             frame = new GameFrame(world);
@@ -79,12 +88,13 @@ public final class Main {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
+    
 
     /*
      * Sets the position of the specified GameFrame on the screen.
      * @param frame the GameFrame
      */
-    private static void position(final GameFrame frame) {
+    private static void position(final JFrame frame) {
         final Dimension size;
         size = calculateScreenArea(SCREENSIZE_MULTIPLIER, SCREENSIZE_MULTIPLIER);
         frame.setSize(size);

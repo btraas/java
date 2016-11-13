@@ -56,7 +56,10 @@ public class DistanceDecision extends NearbyDecision {
     
         for (int distance = 2; distance <= maxDistance; distance++) {
             // check from x - x (ring around this cell) for a goal.
-            outlookOptions = current.getMoveToPossibilities(null, distance, distance);
+            outlookOptions = getNonNegativeOptions(
+            		current.getNearbyCells(distance, distance), 
+            		new Class<?>[] {current.getClass()});
+            
             outlook = new NearbyFoodDecision(seed, outlookOptions, positiveTypes);
       
             positiveOptions = outlook.getPositiveOptions();
@@ -100,10 +103,10 @@ public class DistanceDecision extends NearbyDecision {
         
         // Else, look for the best decision for 2 turns from now.
 
-        Life currentLife = current.getLife();
+        
         //System.out.println("\nThis is a: "+currentLife.getClass().getSimpleName());
         
-        if (maxDistance < 2 || currentLife == null || !(currentLife instanceof Moveable) ) {
+        if (maxDistance < 2 || current.has(Moveable.class) ) {
             return super.decide();
         }
         

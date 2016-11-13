@@ -1,13 +1,25 @@
 package ca.bcit.comp2526.a2b;
 
 
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Properties;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SpringLayout;
 
 /**
  * <p>Static class for Settings.</p>
@@ -22,8 +34,11 @@ import java.util.Properties;
  * @author Brayden Traas
  * @version 2016-10-22
  */
-public final class Settings {
+@SuppressWarnings("serial")
+public final class Settings extends JFrame {
 
+	private static final String TITLE = "A2B Settings";
+	
     private static final String DIR_STRING = "Working Directory = " 
         + System.getProperty("user.dir");
     private static final String LOADED = "Loaded ";
@@ -32,7 +47,7 @@ public final class Settings {
     private static final String NOT_FOUND_IN = " not found in ";
     
     
-    private static final HashMap<String, String> DEFAULTS;
+    private static final ArrayList<Setting> DEFAULTS = new ArrayList<Setting>();
     
     
     private static final String filename = "settings.properties";
@@ -41,47 +56,170 @@ public final class Settings {
  
     // Assign defaults to DEFAULT HashMap.
     static {
-        HashMap<String, String> tmpDefaults = new HashMap<String, String>();
-        
-        tmpDefaults.put("debug", "false");
+         
+        DEFAULTS.add(new Setting("debug", "false", "Debug Application?"));
         
         // Upper limit to Life sense distance.
-        tmpDefaults.put("maxsensedistance", "99");
+        DEFAULTS.add(new Setting("maxsensedistance", "99", "Upper limit to Life sense (predators & food)"));
         
         // How far to keep away from predators.
-        tmpDefaults.put("evasivebufferdistance", "1");
+        DEFAULTS.add(new Setting("evasivebufferdistance", "1", "Distance to keep from predators"));
         
         // How big to create the world.
-        tmpDefaults.put("worldsize", "" + DEFAULT_WORLDSIZE);
+        DEFAULTS.add(new Setting("worldsizex", "" + DEFAULT_WORLDSIZE, "Number of columns"));
+        DEFAULTS.add(new Setting("worldsizey", "" + DEFAULT_WORLDSIZE, "Number of rows"));
         
         // What data to place in the Cells. Options:
         //  'food', 'coordinate', 'moves', 'none'
-        tmpDefaults.put("filltext", "food");
+        DEFAULTS.add(new Setting("filltext", "none", 
+        		"What to show in the Cells: 'food', 'coordinate', 'moves', or 'none'"));
         
         // Type of grid: 'hex' or 'square' (default)
-        tmpDefaults.put("gridtype", "hex");
+        DEFAULTS.add(new Setting("gridtype", "hex", "Type of grid: 'hex' or 'square' (default)"));
         
         // Chance of Plant spawning (x/100)
-        tmpDefaults.put("plantchance", "30");
+        DEFAULTS.add(new Setting("plantchance", "30", "Chance of Plant spawning (x/100)"));
         
         // Chance of Herbivore spawning in Cell (x/100)
-        tmpDefaults.put("herbivorechance", "10");
+        DEFAULTS.add(new Setting("herbivorechance", "25", "Chance of Herbivore spawning (x/100)"));
+        
+        // Chance of Carnivore spawning in Cell (x/100)
+        DEFAULTS.add(new Setting("carnivorechance", "10", "Chance of Carnivore spawning (x/100)"));
+        
+        // Chance of Omnivore spawning in Cell (x/100)
+        DEFAULTS.add(new Setting("omnivorechance", "10", "Chance of Omnivore spawning (x/100)"));
+        
+        // Chance of Cell being water terrain;
+        DEFAULTS.add(new Setting("waterchance", "3", "Chance of a Cell containing water (x/100)"));
         
         // Are the lines visible in the grid?
-        tmpDefaults.put("visiblelines", "true");
+        DEFAULTS.add(new Setting("visiblelines", "false", "Show borders between Cells?"));
+        
+        // Time between auto-turns.
+        DEFAULTS.add(new Setting("turnspeedms", "50", "Time between turns (Spacebar to activate) in ms"));
+        
+        // Percent to darken each turn.
+        DEFAULTS.add(new Setting("darkenpercent", "80", "Percent of previous color retained on Life aging"));
         
         // Seed to use for Random events. 0 = Generate new.
         // All settings need to be the same for a repeat scenario.
-        tmpDefaults.put("seed", "0");
+        DEFAULTS.add(new Setting("seed", "0", 
+        		"Seed to use for Random events. 0 = Generate new. (All settings must be the same for a repeat scenario)"));
     
-        DEFAULTS = tmpDefaults;
     }
     
     
+    private JPanel panel;
+    private static LinkedHashMap<String, Setting> settings = new LinkedHashMap<String, Setting>();
     
-    private static Properties settings = new Properties();
+    public Settings() {
+    	
+    }
     
-    private Settings() {} // prevent instantiation of final class
+    private static class Setting {
+    	private String key;
+    	private String value;
+    	private String name;
+    	
+    	private Setting() {
+    		
+    	}
+    	
+    	private Setting(String key, String value, String name) {
+    		this.key = key;
+    		this.value = value;
+    		this.name = name;
+    		
+    		if (name == null) {
+    			this.name = key;
+    		}
+    	}
+    }
+    
+    public void init() {
+    	setTitle(TITLE);
+        
+    	load();
+    	
+    	
+    	SpringLayout layout = new SpringLayout();
+    	panel = new JPanel(layout);
+    	//panel.setLayout(new GridLayout(settings.size(), 2));
+    	
+    	int i = 0;
+    	for (String key : settings.keySet()) {
+    		Setting setting = settings.get(key);
+    		JLabel label = new JLabel("<html>" + setting.name + "</html>");
+    		panel.add(label);
+    		
+    		JTextField textField = new JTextField(setting.value, 10);
+    		label.setLabelFor(textField);
+    		label.setName(setting.key);
+    		panel.add(textField);
+    		
+    		 layout.putConstraint(SpringLayout.WEST, label, 10, SpringLayout.WEST, panel);
+    		 layout.putConstraint(SpringLayout.NORTH, label, 25 + i, SpringLayout.NORTH, panel);
+    		 layout.putConstraint(SpringLayout.NORTH, textField, 25 + i, SpringLayout.NORTH, panel);
+    		 layout.putConstraint(SpringLayout.WEST, textField, 20, SpringLayout.EAST, label);
+
+    		 i += 25;
+    	}
+    	JButton saveButton = new JButton("Save");
+    	
+    	JFrame settingsFrame = this;
+    	saveButton.addActionListener(new ActionListener() {
+    	    public void actionPerformed(ActionEvent e) {
+    	    	submit();
+    	    	settingsFrame.dispose();
+    	    }
+    	});
+    	panel.add(saveButton);
+    	
+    	layout.putConstraint(SpringLayout.WEST, saveButton, 10, SpringLayout.WEST, panel);
+		layout.putConstraint(SpringLayout.NORTH, saveButton, 25 + i, SpringLayout.NORTH, panel);
+    	
+    	add(panel);
+    	
+    	addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+            	submit();
+                e.getWindow().dispose();
+            }
+        });
+    
+    }
+    
+    private void submit() {
+    	setFromPanel();
+    	save();
+    		
+    	try {
+			Main.createWorld();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+    }
+    
+    private void setFromPanel() {
+    	for (Component component : panel.getComponents()) {
+    		if (component instanceof JLabel) {
+    			JLabel label = (JLabel)component;
+    			
+    			Setting setting = settings.get(label.getName());
+    			
+    			Component labelFor = label.getLabelFor();
+    			String value = labelFor == null || !(labelFor instanceof JTextField) ? 
+    					"ERROR" : ((JTextField)labelFor).getText();
+    			
+    			setting.value = value;
+    			
+    		}
+    	}
+    }
+    
   
     /**
      * <p>Loads Settings from the properties file.
@@ -96,9 +234,10 @@ public final class Settings {
         
         System.out.println(DIR_STRING);
       
+        Properties properties = new Properties();
         
         try {
-            settings.load(new FileInputStream(filename));
+        	properties.load(new FileInputStream(filename));
         } catch (Exception exception) {
             Settings.setDefaults();
             Settings.save();
@@ -106,8 +245,15 @@ public final class Settings {
         }
         
   
-        for (String key : settings.stringPropertyNames()) {
-            String value = settings.getProperty(key);
+        for (String key : properties.stringPropertyNames()) {
+            String value = properties.getProperty(key);
+            
+            Setting setting = settings.get(key);
+            if (setting == null) {
+            	settings.put(key, new Setting(key, value, null));
+            } else {
+            	setting.value = value;
+            }
             System.out.println(LOADED + key + ARROW + value);
         }
 
@@ -119,8 +265,8 @@ public final class Settings {
      */
     private static void setDefaults() {
 
-        for (Map.Entry<String, String> entry : DEFAULTS.entrySet()) {
-            settings.setProperty(entry.getKey(), entry.getValue());
+        for (Setting setting : DEFAULTS) {
+            settings.put(setting.key, setting);
         }
       
     }
@@ -134,7 +280,15 @@ public final class Settings {
       
         try {
             output = new FileOutputStream(filename);
-            settings.store(output, null);
+            
+            Properties properties = new Properties();
+            for (String key : settings.keySet()) {
+            	Setting setting = settings.get(key);
+            	properties.setProperty(setting.key, setting.value);
+            }
+            
+            properties.store(output, null);
+            
         } catch (IOException exception) {
             exception.printStackTrace();
         } finally {
@@ -157,12 +311,12 @@ public final class Settings {
      */
     public static String get(final String key) {
         
-        String prop = settings.getProperty(key.toLowerCase());
-        if (prop == null) {
+        Setting prop = settings.get(key.toLowerCase());
+        if (prop == null || prop.value == null) {
             System.err.println(PROPERTY + key + NOT_FOUND_IN + filename);
-            prop = "";
+            prop = new Setting();
         }
-        return prop;
+        return prop.value;
     }
     
     /**

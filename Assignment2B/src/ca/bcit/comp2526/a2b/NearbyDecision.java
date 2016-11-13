@@ -73,13 +73,13 @@ public class NearbyDecision extends MoveDecision<Cell> {
         for (int i = 0; i < options.length; i++) {
           
             // If this Cell is empty, continue to next Cell
-            if (options[i].getLife() == null) {
+            if (options[i].getLives().size() == 0) {
                 continue;
             }
             for (int j = 0; j < positiveTypes.length; j++) {
                 
                 // If the Life in this Cell is a positive option
-                if (positiveTypes[j].isInstance(options[i].getLife())) {
+                if (options[i].has(positiveTypes[j])) {
                     newOptions.add(options[i]);
                 }
             }
@@ -116,14 +116,14 @@ public class NearbyDecision extends MoveDecision<Cell> {
         for (int i = 0; i < options.length; i++) {
         
             // If this Cell is empty, add this and continue to next Cell
-            if (options[i].getLife() == null) {
+            if (options[i].getLives().size() == 0) {
                 newOptions.add(options[i]);
                 continue;
             }
-            for (int j = 0; j < negativeLifeTypes.length; i++) {
+            for (int j = 0; j < negativeLifeTypes.length; j++) {
                 
                 // If the Life in this Cell is a negative option, don't add to non-negative options
-                if (negativeLifeTypes[j].isInstance(options[i].getLife())) {
+                if (options[i].has(negativeLifeTypes[j])) {
                     continue;
                 }
             }
@@ -187,8 +187,7 @@ public class NearbyDecision extends MoveDecision<Cell> {
         for (int i = 0; i < options.length; i++) {
             
             // Find ALL possible moves from this option's location
-            Class<?>[] moveToClasses = {Object.class};
-            Cell[] nearby = options[i].getMoveToPossibilities(moveToClasses, 1, dist);
+            Cell[] nearby = options[i].getNearbyCells(1, dist);
           
             //System.out.println("Cells nearby: "+nearby.length);
             

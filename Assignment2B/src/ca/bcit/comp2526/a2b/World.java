@@ -1,9 +1,9 @@
 package ca.bcit.comp2526.a2b;
 
 
-import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 /**
@@ -15,6 +15,9 @@ import java.util.Random;
  */
 public final class World {
 
+	private static long lastTime;
+	//private static int lastTotal;
+	
     /**
      * Decides if we show food on each Cell.
      */
@@ -36,20 +39,6 @@ public final class World {
      */
     public static final boolean VISIBLE_LINES = Settings.getBoolean("visibleLines");
     
-    /**
-     * Decides the empty Color for elements.
-     */
-    public static final Color EMPTY_COLOR = Color.WHITE;
-
-    /**
-     * Decides the border Color for elements.
-     */
-    public static final Color BORDER_COLOR = Color.BLACK;
-    
-    /**
-     * Decides the text Color for elements.
-     */
-    public static final Color TEXT_COLOR = Color.BLACK;
     
     
     private final long seed;
@@ -97,6 +86,41 @@ public final class World {
         }
         */
     }
+
+    /**
+     * Gets the cells of the World.
+     * @return an ArrayList of cells.
+     */
+    public ArrayList<Cell> getCells() {
+    	ArrayList<Cell> cells = new ArrayList<Cell>();
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+              
+                if (this.cells[i][j] != null) {
+                    cells.add(this.cells[i][j]);
+                }
+            }
+        }
+        return cells;
+    }
+    
+    /**
+     * Gets the current lives of the World.
+     * @return an ArrayList of lives.
+     */
+    public ArrayList<Life> getLives() {
+    	ArrayList<Life> lives = new ArrayList<Life>();
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+              
+                if (cells[i][j] != null && cells[i][j].getLife(Object.class) != null) {
+                    lives.addAll(cells[i][j].getLives());
+                }
+            }
+        }
+        //System.out.println(lives);
+        return lives;
+    }
     
     /**
      * Processes the turn. Essentially finds the Life objects
@@ -104,28 +128,43 @@ public final class World {
      */
     public void takeTurn() {
       
+    	long thisTime = System.currentTimeMillis();
+    	long diff = (thisTime - lastTime);
+    	
+    	// long total = lastTotal+1;
+    	
+    	System.out.println(" Turn time: " + diff + "ms");// + " total: "+lastTotal+" ratio:"
+        		//	+ratio);
+    	
+    	lastTime = thisTime;
+    	
         //boolean showFood = Boolean.parseBoolean(Settings.get.getProperty("showfood"));
         //System.out.println("\nSHOWFOOD: "+showFood+"\n");
       
-        ArrayList<Life> lives = new ArrayList<Life>();
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
-              
-                if (cells[i][j] != null && cells[i][j].getLife() != null) {
-                    lives.add(cells[i][j].getLife());
-                }
-            }
-        }
+        ArrayList<Life> lives = getLives();
         
         // Shuffle the order of the lives to process with the World's seed.
-        // Collections.shuffle(lives, getSeed());
+       // Collections.shuffle(lives, getSeed());
+        
+        HashMap<Class<?>, Integer> map = new HashMap<Class<?>, Integer>();
+        map.put(Plant.class, 0);
+        map.put(Herbivore.class, 0);
+        map.put(Carnivore.class, 0);
         
         // Do this separately so we don't reprocess tiles.
         for (Life occupier: lives) {
             if (occupier != null) {
+          //  	map.put(occupier.getClass(), map.get(occupier.getClass())+1);
                 occupier.processTurn();
             }
         }
+        
+       // int plants = map.get(Plant.class);
+       //  int herbs = map.get(Herbivore.class);
+       // int carns = map.get(Carnivore.class);
+       // System.out.print("Plants:"+plants+" Herbs:"+herbs
+       // 	+" Carns:"+carns + " Total: " + (plants+herbs+carns));
+       // lastTotal = plants+herbs+carns;
         
         // Update text on each cell. Only for square cells... HexCells are handled differently.
         for (int i = 0; i < rows; i++) {
@@ -133,6 +172,7 @@ public final class World {
               
                 if (cells[i][j] != null && (cells[i][j] instanceof SquareCell)) {
                     ((SquareCell)cells[i][j]).setText();
+                    //((SquareCell)cells[i][j]).recolor();
                 }
             }
         }
@@ -157,7 +197,7 @@ public final class World {
             return null;
         }
         cells[row][column] = newCell; // new Cell(this, row, column);
-        cells[row][column].setLife(Creator.createLife(cells[row][column], randomSeed));
+        cells[row][column].addLife(Creator.createLife(cells[row][column], randomSeed));
 
         return cells[row][column];
     }
@@ -215,7 +255,6 @@ public final class World {
     public long getSeed(boolean raw) {
         return seed;
     }
-    
     
     
 }

@@ -2,7 +2,9 @@ package ca.bcit.comp2526.a2b;
 
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
+import java.util.ArrayList;
 
 /**
  * <p>Cells within a world.</p>
@@ -19,27 +21,30 @@ public interface Cell {
     /**
      * The Cell's empty color.
      */
-    Color EMPTY_COLOR = Color.WHITE;
+    Color EMPTY_COLOR = new Color(163, 117, 73);
 
     /**
      * The Cell's border color.
      */
-    Color BORDER_COLOR = Color.BLACK;
+    Color BORDER_COLOR = Color.WHITE;
    
+    /**
+     * The Cell's text color.
+     */
+    Color TEXT_COLOR = Color.WHITE;
+    
+    /**
+     * Returns the EMPTY_COLOR variable.
+     * @return Color for backgrounds.
+     */
+    Color getEmptyColor();
+    
     /**
      * Gets the Point location of this Cell.
      * @return location (Point)
      */
     Point getLocation();
     
-    /**
-     * Gets the possibilities to move to from here.
-     * @param types - allowable types we can move into.
-     * @param distanceMin - min distance possible to move.
-     * @param distanceMax - max distance possible to move.
-     * @return an array of possible destination Cells.
-     */
-    Cell[] getMoveToPossibilities(final Class<?>[] types, int distanceMin, int distanceMax);
     
     /**
      * Gets the Cells within the given distance.
@@ -58,22 +63,76 @@ public interface Cell {
     
     /**
      * Gets all adjacent cells occupied with the given array of types.
-     * @return an array of adjacent Cells.
+     * @return an array of valid adjacent Cells.
      */
-    Cell[] getAdjacentCells(final Class<?>[] types);
+    Cell[] getAdjacentCellsWith(final Class<?>[] validTypes);
     
     /**
-     * Gets the Life object this Cell contains.
-     * @return the Life object or null.
+     * Gets all adjacent cells occupied without the given array of types.
+     * @return an array of valid adjacent Cells.
      */
-    Life getLife();
+    Cell[] getAdjacentCellsWithout(final Class<?>[] invalidTypes);
+    
+    /**
+     * Gets the Life objects this Cell contains.
+     * @return the Life objects (ArrayList) or null.
+     */
+    ArrayList<Life> getLives();
     
     /**
      * Sets the Life object this Cell contains.
      * @param occupier to set for this Cell.
      */
-    void setLife(final Life occupier);
+    void addLife(final Life occupier);
+    
+    /**
+     * Removes a Life object this Cell contains.
+     * @param occupier to remove for this Cell.
+     */
+    void removeLife(final Life occupier);
   
+    
+    /**
+     * Get a Life object this Cell contains of this type.
+     * @param type to select
+     * @return Life of this type found.
+     */
+    Life getLife(final Class<?> type);
+    
+    /**
+     * Get a Life object this Cell contains of these types.
+     * @param types to select
+     * @return Life of this type found.
+     */
+    Life getLife(final Class<?>[] types);
+    
+    /**
+     * Returns true if this Cell has a Life of this type
+     * @param types to check
+     * @return true if it has this, otherwise false.
+     */
+    boolean has(final Class<?> type);
+    
+    /**
+     * Returns true if this Cell has a Life of one of these types
+     * @param types to check
+     * @return true if it has this, otherwise false.
+     */
+    boolean has(final Class<?>[] types);
+    
+    /**
+     * Returns true if this Cell is an instance of these types.
+     * @param types to check for.
+     * @return true if this is one of the given types.
+     */
+    boolean is(final Class<?>[] types);
+    
+    /**
+     * Gets the size of this Cell.
+     * @return the size as a Dimension.
+     */
+    Dimension getSize();
+    
     /**
      * Gets the Row this Cell belongs to.
      * @return the row.
@@ -125,5 +184,11 @@ public interface Cell {
      */
     String getText();
     
+    /**
+     * Sets the text to display on this Cell.
+     * @param the text to display.
+     * @param text
+     */
+    void setText(String text);
     
 }

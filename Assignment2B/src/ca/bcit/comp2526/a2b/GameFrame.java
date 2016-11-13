@@ -24,6 +24,7 @@ public class GameFrame extends JFrame {
      */
     public GameFrame(final World world) {
         this.world = world;
+        setBackground(Cell.EMPTY_COLOR);
     }
 
     /**
@@ -36,10 +37,14 @@ public class GameFrame extends JFrame {
 
         for (int row = 0; row < world.getRowCount(); row++) {
             for (int col = 0; col < world.getColumnCount(); col++) {
-                add((SquareCell)world.createCellAt(new SquareCell(world, row, col), row, col));
+                add((SquareCell)world.createCellAt(Creator.createCell(
+                				new SquareCell(world, row, col),
+                				world.getSeed()), row, col));
             }
         }
         addMouseListener(new TurnListener(this));
+        addKeyListener(new TurnListener(this));
+        
     }
 
     /**
