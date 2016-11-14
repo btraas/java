@@ -1,0 +1,9 @@
+package ca.bcit.comp2526.a2b;
+
+public class WaterHexCell extends HexCell {
+
+	public WaterHexCell(World world, int row, int col, int valueX, int valueY, int radius) {
+		super(world, row, col, valueX, valueY, radius);
+	}
+
+}

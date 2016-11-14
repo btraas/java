@@ -1,0 +1,19 @@
+package ca.bcit.comp2526.a2b;
+
+import java.awt.Color;
+
+public class WaterHexCell extends HexCell {
+
+    Color EMPTY_COLOR = Color.BLUE;
+	
+	public WaterHexCell(Cell origin) {
+		super(origin.getWorld(), 
+				origin.getRow(),
+				origin.getColumn(), 
+				origin.getLocation().x, 
+				origin.getLocation().y, 
+				origin.getRadius());
+
+	}
+
+}

@@ -1,0 +1,16 @@
+package ca.bcit.comp2526.a2b;
+
+import java.awt.Color;
+
+public class WaterHexCell extends HexCell {
+
+    Color EMPTY_COLOR = Color.BLACK;
+	
+	public WaterHexCell(World world, int row, int col, int valueX, int valueY, int radius) {
+		super(world, row, col, valueX, valueY, radius);
+		/**
+	     * The Cell's empty color.
+	     */
+	}
+
+}

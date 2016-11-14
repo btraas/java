@@ -1,0 +1,13 @@
+#Tue Nov 08 20:51:32 PST 2016
+debug=false
+filltext=none
+plantchance=30
+seed=0
+visiblelines=false
+gridtype=hex
+herbivorechance=10
+carnivorechance=10
+evasivebufferdistance=2
+worldsize=25
+maxsensedistance=99
+turnspeedms=50

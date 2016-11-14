@@ -1,0 +1,69 @@
+package ca.bcit.comp2526.a2b;
+
+import static org.junit.Assert.*;
+
+import org.junit.Before;
+import org.junit.Test;
+
+public class HexCellTest {
+
+	private World world;
+	private HexCell testHexCell;
+	
+	@Before
+	private void setup() {
+		
+	}
+	
+	@Test
+	public void testGetNearbyCells() {
+		
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetAdjacentCellsClassOfQArray() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetAdjacentCells() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetLives() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testAddLife() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testRemoveLife() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetLifeClassOfQ() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetLifeClassOfQArray() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testHasClassOfQ() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testHasClassOfQArray() {
+		fail("Not yet implemented");
+	}
+
+}
