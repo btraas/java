@@ -3,10 +3,8 @@ package ca.bcit.comp2526.a2b;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
+// import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,14 +33,14 @@ public class SquareCell extends JPanel implements Cell {
   
     private static final String CONTAINS = " containing a ";
     
-    protected Color emptyColor = EMPTY_COLOR;
+    //protected Color emptyColor = EMPTY_COLOR;
     
     private int row;
     private int column;
     private World world;
     private Point location;
-    // private ArrayList<Life> occupiers = new ArrayList<Life>();
-    // private Circle circle;
+    private ArrayList<Life> occupiers = new ArrayList<Life>();
+    private Circle circle;
     private JLabel text;
   
     /**
@@ -64,33 +62,33 @@ public class SquareCell extends JPanel implements Cell {
         if (World.VISIBLE_LINES) {
             this.setBorder(CELL_BORDER);
         }
-        setBackground(emptyColor);
         
         setLayout(new BorderLayout());
+        setBackground(getEmptyColor());
         
         this.text = new JLabel("");
-        //this.circle = new Circle(getSize().width / 2, emptyColor);
+        this.circle = new Circle(getSize().width / 2, getEmptyColor());
         
         add(text);
-        //add(circle);
+        add(circle);
         
     }
   
-    /*
-    protected void recolor() {
+    
+    public void recolor() {
     	occupiers.trimToSize();
     	int occupierCount = occupiers.size();
         Life last = occupierCount > 0 ? 
         		occupiers.get(occupierCount-1) : null;
         
         // Get the new Color.
-        Color newColor = (last == null ? emptyColor 
+        Color newColor = (last == null ? getEmptyColor() 
         		: last.getColor());
         
-        //circle.paint(newColor);
+        circle.paint(newColor);
         
     }
-    */
+
     
     /**
      * Gets the empty color.
@@ -229,16 +227,17 @@ public class SquareCell extends JPanel implements Cell {
         //if(this.occupier != null) this.occupier.destroy(); // already done.
         
     	if (occupier != null) {
-    		//this.occupiers.add(occupier);	// add Life to ArrayList
+    		this.occupiers.add(occupier);	// add Life to ArrayList
     		
     		// UI
-    		this.add(occupier, BorderLayout.CENTER);
+    		//this.add(occupier, BorderLayout.CENTER);
     		// set color of circle to last occupier's color
-    		//recolor();
+    		recolor();
     		// repaint();
-    		occupier.setVisible(true);
-    		setText(getText());
-    		repaint();
+    		//occupier.setVisible(true);
+    		
+    		//setText(getText());
+    		//repaint();
     		
     	}
     }
@@ -254,7 +253,8 @@ public class SquareCell extends JPanel implements Cell {
     	}
     	
     	// Single
-    	this.remove(occupier);
+    	this.occupiers.remove(occupier);
+    	recolor();
 
     }
     
@@ -298,15 +298,20 @@ public class SquareCell extends JPanel implements Cell {
 
 	@Override
 	public ArrayList<Life> getLives() {
-		Component[] components = this.getComponents();
-		ArrayList<Life> lives = new ArrayList<Life>();
+		//Component[] components = this.getComponents();
+		// ArrayList<Life> lives = new ArrayList<Life>();
+		
+		
+		/*
 		for (int i = 0; i < components.length; i++) {
 			if (Life.class.isInstance(components[i])) {
 				lives.add((Life)components[i]);
 			}
 		}
-
-		return lives;
+		*/
+		
+		// return lives;
+		return occupiers;
 	}
 
     
@@ -370,7 +375,7 @@ public class SquareCell extends JPanel implements Cell {
             return row + "x" + column;
         }
         
-        return "";
+        return " ";
     }
     
     /**

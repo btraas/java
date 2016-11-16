@@ -157,10 +157,18 @@ public class Hexagon extends Polygon {
      * @return Pair of stroke & Color objects pre-draw
      */
     private Pair<Color, Stroke> drawOrFill(final Graphics2D graphics, boolean filled) {
-          
+        
+    	if (graphics == null) {
+    		return null;
+    	}
+    	
         Color oldColor = graphics.getColor();
         Stroke oldStroke = graphics.getStroke();
       
+        if (xpoints == null || ypoints == null || npoints == 0) {
+        	return new Pair<Color, Stroke>(oldColor, oldStroke);
+        }
+        
        // System.out.println(xpoints.length + " " + ypoints.length + " " + npoints);
         
         if (filled) {

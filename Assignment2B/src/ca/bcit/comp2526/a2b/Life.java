@@ -29,8 +29,7 @@ import javax.swing.JPanel;
  * @author Brayden Traas
  * @version 2016-10-22
  */
-@SuppressWarnings("serial")
-public abstract class Life extends JPanel {
+public abstract class Life {
 
 	// private ArrayList<Point> points;
 	
@@ -41,9 +40,7 @@ public abstract class Life extends JPanel {
     protected Color originalColor;
     protected Color color;
     private Cell location;
-    private Point subLocation; // Position within Cell
     
-
     protected Class<?>[] foodTypes;
     
     protected int minReproduce = 0;
@@ -55,8 +52,7 @@ public abstract class Life extends JPanel {
     
     protected int life = 4;
     protected int eatAmount = 0;
-    
-    private Dimension size;
+
  
     /**
      * Creates a Life.
@@ -70,20 +66,16 @@ public abstract class Life extends JPanel {
         this.originalColor = color;
         this.foodTypes = foodTypes;
         
-        size = new Dimension(
-        			location.getSize().width / 2, 
-        			location.getSize().width / 2);
-        
-        
+      
         
         this.location = location;
         
-        setBackground(location.getEmptyColor());
-        setSubLocation();
+        //setBackground(location.getEmptyColor());
+        //setSubLocation();
         location.setText(location.getText());
-        repaint();
+        //repaint();
     }
-    
+    /*
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -91,14 +83,10 @@ public abstract class Life extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(color);
         
-        //if (location == null || subLocation == null || size == null) {
-        	//return;
-        //}
-        
-        //for (Point point : points) {
+       
         setBackground(location.getEmptyColor());
             g2.fillOval(subLocation.x, subLocation.y, size.width, size.height);
-        //}
+        
     }
     
     protected void setSubLocation() {
@@ -111,6 +99,7 @@ public abstract class Life extends JPanel {
         		rand.nextInt(Math.max(1, pointX)),
         		rand.nextInt(Math.max(1, pointY)));
     }
+    */
     
     /**  
      * Can be overriden. Explicitly specify what happens to this type of Life
@@ -120,7 +109,9 @@ public abstract class Life extends JPanel {
     public void processTurn() {
     	this.darken();
     	if (--life < 0) {
-            this.getCell().removeLife(null);
+            if (this.getCell() != null) {
+            	this.getCell().removeLife(null);
+            }
             this.destroy();
             return;
         }
@@ -132,7 +123,9 @@ public abstract class Life extends JPanel {
     public void destroy() {
         Cell oldCell = this.getCell();
         this.setCell(null);
-        oldCell.removeLife(null); // remove all
+        if (oldCell != null) {
+        	oldCell.removeLife(null); // remove all
+        }
     }
     
     /**
@@ -249,10 +242,14 @@ public abstract class Life extends JPanel {
     	int green 	= (int)(color.getGreen() * DARKEN_AMOUNT);
     	int blue    = (int)(color.getBlue() * DARKEN_AMOUNT);
     
+    	
     	this.color = new Color(
     						colorBound(red),
     						colorBound(green),
     						colorBound(blue));
+    	if (location != null) {
+    		location.recolor();
+    	}
     }
     
    
@@ -286,6 +283,7 @@ public abstract class Life extends JPanel {
 
     }
 */
+    /*
     @Override
     public Dimension getPreferredSize() {
         return size;
@@ -295,6 +293,7 @@ public abstract class Life extends JPanel {
         g2d.setColor(color);
         g2d.fillOval(5, 5, w / 2, h / 2);
     }
+    */
     
     public String toString() {
     	Point point = getCell().getLocation();

@@ -167,7 +167,16 @@ public final class World {
        // lastTotal = plants+herbs+carns;
         
         // Update text on each cell. Only for square cells... HexCells are handled differently.
-        for (int i = 0; i < rows; i++) {
+       repaintCells();
+        
+    }
+
+    
+    /**
+     * Repaints cells.
+     */
+    public void repaintCells() {
+    	for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
               
                 if (cells[i][j] != null && (cells[i][j] instanceof SquareCell)) {
@@ -176,9 +185,8 @@ public final class World {
                 }
             }
         }
-        
     }
-
+    
     
     /**
      * Creates & returns the Cell at this location.

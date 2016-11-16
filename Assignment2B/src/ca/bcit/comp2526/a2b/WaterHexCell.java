@@ -14,8 +14,12 @@ public class WaterHexCell extends HexCell implements WaterCell {
 				origin.center.y, 
 				origin.getRadius());
 
-		emptyColor = Color.BLUE;
-
 	}
+
+	@Override
+	public Color getEmptyColor() {
+    	return WATER_COLOR;
+    }
+    
 
 }

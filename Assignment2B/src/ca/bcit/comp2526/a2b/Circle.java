@@ -1,7 +1,6 @@
 package ca.bcit.comp2526.a2b;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -26,7 +25,9 @@ public class Circle extends JPanel {
     protected void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
         Graphics2D g2d = (Graphics2D) graphics;
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(
+        		RenderingHints.KEY_ANTIALIASING, 
+        		RenderingHints.VALUE_ANTIALIAS_ON);
         draw(g2d, getWidth(), getHeight());
 
     }
@@ -36,10 +37,10 @@ public class Circle extends JPanel {
         return dimension;
     }
     
-    private void draw(Graphics2D g2d, int w, int h) {
-    	System.out.println("drawing circle here...");
+    private void draw(Graphics2D g2d, int width, int height) {
+    	// System.out.println("drawing circle here...");
         g2d.setColor(color);
-        g2d.fillOval(5, 5, w / 2, h / 2);
+        g2d.fillOval(5, 5, width / 2, height / 2);
     }
     
     protected void paint(Color newColor) {

@@ -42,9 +42,12 @@ public class GameFrame extends JFrame {
                 				world.getSeed()), row, col));
             }
         }
+        repaint();
+        //world.repaintCells();
         addMouseListener(new TurnListener(this));
         addKeyListener(new TurnListener(this));
-        
+       
+        //world.repaintCells();
     }
 
     /**

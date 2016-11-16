@@ -403,6 +403,11 @@ public class HexCell extends Hexagon implements Cell {
          
     }
 
+    @Override
+    public void recolor() {
+    	paint();
+    }
+    
     /**
      * Paints this Hexagon with its Occupier's Color.
      */

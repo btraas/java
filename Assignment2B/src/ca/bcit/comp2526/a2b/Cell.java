@@ -191,4 +191,9 @@ public interface Cell {
      */
     void setText(String text);
     
+    /**
+     * Recolor this cell.
+     */
+    void recolor();
+    
 }

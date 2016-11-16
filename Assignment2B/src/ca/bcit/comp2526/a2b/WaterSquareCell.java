@@ -5,9 +5,14 @@ import java.awt.Color;
 @SuppressWarnings("serial")
 public class WaterSquareCell extends SquareCell implements WaterCell {
 
+	
 	public WaterSquareCell(SquareCell origin) {
 		super(origin.getWorld(), origin.getRow(), origin.getColumn());
-		emptyColor = Color.BLUE;
 	}
 
+	@Override
+	public Color getEmptyColor() {
+    	return WATER_COLOR;
+    }
+	
 }
