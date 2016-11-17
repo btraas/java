@@ -171,9 +171,9 @@ public class Hexagon extends Polygon {
         
        // System.out.println(xpoints.length + " " + ypoints.length + " " + npoints);
         
-        if (filled) {
+        if (filled && graphics != null) {
             graphics.fillPolygon(xpoints, ypoints, npoints);
-        } else {
+        } else if (graphics != null) {
             graphics.drawPolygon(xpoints, ypoints, npoints);
         }
         

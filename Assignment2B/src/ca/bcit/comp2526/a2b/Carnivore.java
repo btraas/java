@@ -13,7 +13,6 @@ import java.util.Random;
  * @version 2016-11-09
  */
 
-@SuppressWarnings("serial")
 public class Carnivore extends Animal {
 
     private static final Color COLOR = Color.RED;

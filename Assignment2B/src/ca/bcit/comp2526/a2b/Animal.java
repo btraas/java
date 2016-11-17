@@ -16,7 +16,6 @@ import java.util.Random;
  * @author Brayden Traas
  * @version 2016-10-22
  */
-@SuppressWarnings("serial")
 public abstract class Animal extends Life implements Moveable<Cell> {
 
     
@@ -29,7 +28,7 @@ public abstract class Animal extends Life implements Moveable<Cell> {
     private int minMove;
     private int maxMove;
     
-    protected Class<?>[] invalidMoveToTypes;
+    //protected Class<?>[] invalidMoveToTypes;
   
     public Animal(Cell location, Color color, 
     				int initialFood,
@@ -42,7 +41,7 @@ public abstract class Animal extends Life implements Moveable<Cell> {
         this.eatAmount = eatAmount;
         this.minMove = minMove;
         this.maxMove = maxMove;
-        this.invalidMoveToTypes = invalidMoveToTypes;
+        this.incompatibleTypes = invalidMoveToTypes;
     }
 
     
@@ -80,13 +79,12 @@ public abstract class Animal extends Life implements Moveable<Cell> {
     }
     
 
-    /**
-     * Gets the Life Types an animal can move into.
-     * @return an array of valid types to move into.
-     */
+    /*
+
     public Class<?>[] getInvalidMoveToTypes() {
         return invalidMoveToTypes;
     }
+    */
     
     /**
      * Gets the possibilities to move to from here.
@@ -107,7 +105,7 @@ public abstract class Animal extends Life implements Moveable<Cell> {
             Cell newCell = possibilities[i];
           
             // If the found cell != this cell
-            if (newCell != null && newCell != this) {
+            if (newCell != null && newCell != getCell()) {
                 
             	// If defined types is null, we're allowing all types.
                 if ( invalidTypes == null || invalidTypes.length == 0) {

@@ -2,11 +2,13 @@ package ca.bcit.comp2526.a2b;
 
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.util.Random;
 
 import javax.swing.JPanel;
 
@@ -62,7 +64,7 @@ public class HexFrame extends GameFrame {
         int max = Math.max(WORLD_SIZE_X, WORLD_SIZE_Y);
         double multiplier = (EXPECTED_MAX/max);
         hexRadius = (int)(hexRadius * multiplier) + 1;
-        System.out.println("mult: "+multiplier+" hex:"+hexRadius);
+       // System.out.println("mult: "+multiplier+" hex:"+hexRadius);
         
         // HexPanel is an inner class below.
         add(new HexPanel(world, WORLD_SIZE_X, WORLD_SIZE_Y));
@@ -194,7 +196,16 @@ public class HexFrame extends GameFrame {
             // System.out.println(graphics2d + " " + valueX + " " + valueY + " " + 0 + " " + initHex.emptyColor + " " + true);
             
             // Draw Hexagon inner shape.
-            initHex.draw(graphics2d, valueX, valueY, 0, initHex.emptyColor, true);
+           //  initHex.draw(graphics2d, valueX, valueY, 0, initHex.getEmptyColor(), true);
+            
+            
+            //initHex.circle.draw(graphics2d, 50, 50);
+            
+            Random seed = world.getSeed();
+            
+            initHex.circle.position.x = valueX - radius + seed.nextInt(radius); 
+    		initHex.circle.position.y = valueY - radius + seed.nextInt(radius);
+    		initHex.circle.draw(graphics2d);
             
             // Draw Hexagon outline.
             if (World.VISIBLE_LINES) {
@@ -203,7 +214,10 @@ public class HexFrame extends GameFrame {
             }
         
             // Paint with the color if its life.
-            initHex.paint();
+            //initHex.paint();
+            
+            initHex.init();
+            initHex.recolor();
             
             String text = initHex.getText();
             

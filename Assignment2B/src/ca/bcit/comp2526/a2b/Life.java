@@ -2,16 +2,11 @@ package ca.bcit.comp2526.a2b;
 
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-import javax.swing.JPanel;
 
 /**
  * <p>A life.</p>
@@ -41,6 +36,7 @@ public abstract class Life {
     protected Color color;
     private Cell location;
     
+    protected Class<?>[] incompatibleTypes;
     protected Class<?>[] foodTypes;
     
     protected int minReproduce = 0;
@@ -160,6 +156,22 @@ public abstract class Life {
      */
     public Color getColor() {
         return color;
+    }
+    
+    /**
+     * Gets the incompatible types.
+     * @return incompatible types.
+     */
+    public Class<?>[] getIncompatibleTypes() {
+        return incompatibleTypes;
+    }
+    
+    /**
+     * Gets the incompatible types.
+     * @return incompatible types.
+     */
+    public Class<?>[] getInvalidMoveToTypes() {
+    	return getIncompatibleTypes();
     }
     
     /**

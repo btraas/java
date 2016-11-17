@@ -39,20 +39,28 @@ public class Creator {
     	int carnivorePct = carnivoreChance + herbivorePct;
     	int omnivorePct  = omnivoreChance  + carnivorePct;
     	
+    	Life life = null;
     	int percent = getNextPercent(seed);
     	if (percent <= plantPct) {
-            return new Plant(loc);
+            life = new Plant(loc);
         } else if (percent <= herbivorePct) {
-            return new Herbivore(loc);
+            life = new Herbivore(loc);
         } else if (percent <= carnivorePct) {
-            return new Carnivore(loc);
+            life = new Carnivore(loc);
         } else if (percent <= omnivorePct) {
-        	return new Omnivore(loc);
+        	life = new Omnivore(loc);
         }
       
+    	// If this new life is not compatible with this cell
+    	// or its contents.
+    	if (life != null && 
+    			(
+    			loc.has(life.getIncompatibleTypes()) 
+    			|| loc.is(life.getIncompatibleTypes()))) {
+    		return null;
+    	}
         
-        // Return null if we've made it this far.
-        return null;
+        return life;
     }
     
     public static Cell createCell(final Cell origin, final Random seed) {

@@ -10,9 +10,9 @@ public class WaterHexCell extends HexCell implements WaterCell {
 		super(origin.getWorld(), 
 				origin.getRow(),
 				origin.getColumn(), 
-				origin.center.x, 
-				origin.center.y, 
-				origin.getRadius());
+				origin.hex.center.x, 
+				origin.hex.center.y, 
+				origin.hex.getRadius());
 
 	}
 

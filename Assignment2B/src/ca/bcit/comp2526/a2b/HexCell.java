@@ -1,11 +1,8 @@
 package ca.bcit.comp2526.a2b;
 
-
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.Point;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A Hex Cell. Both a Hexagon and a Cell object.
@@ -14,23 +11,17 @@ import java.util.List;
  * @author Brayden Traas
  * @version 2016-11-02
  */
-public class HexCell extends Hexagon implements Cell {
+@SuppressWarnings("serial")
+public class HexCell extends Cell {
    
-    private static final long serialVersionUID = 3929010413552114577L;
-
     private static final String UNLIKE_TYPES = "Comparing unlike Cell types!!";
 
     private static final float HALF = 0.5f;
     
-    
     private static final String TYPE_AT = "Cell @";
     
     
-    private World world;
-    private Point location;
-    private ArrayList<Life> occupiers = new ArrayList<Life>();
-    
-    protected Color emptyColor = EMPTY_COLOR;
+    protected Hexagon hex;
     
     /**
      * Instantiates a HexCell.
@@ -43,276 +34,19 @@ public class HexCell extends Hexagon implements Cell {
      * @param radius of the Hexagon.
      */
     public HexCell(final World world, int row, int col, int valueX, int valueY, int radius) {
-        super(new Point(valueX, valueY), radius);
-        this.location = new Point(row, col);
-        this.world = world;
+    	super(world, row, col);
+        hex = new Hexagon(new Point(valueX, valueY), radius);
+        //this.circle = new Circle(10, Color.GREEN);
+        init();
     }
     
     
-    /**
-     * Gets the empty color.
-     * @return Color for backgrounds
-     */
-    @Override
-    public Color getEmptyColor() {
-    	return EMPTY_COLOR;
-    }
-    
-    /**
-     * Gets the location (Point) of this Cell.
-     * @return location (Point)
-     */
-    @Override
-    public Point getLocation() {
-        return location;
-    }
-
-    /**
-     * Gets the adjacent cells to this Cell
-     * @return array of Cells that are adjacent to this one.
-     */
-    @Override
-    public Cell[] getNearbyCells(int min, int max) {
-        List<Cell> cells = new ArrayList<Cell>();
-  
-        // For each from -1 to 1 in distance Y from this Cell
-        for (int i = 0 - max; i <= max; i++) {
-          
-            // For each from -1 to 1 in distance X from this Cell
-            for (int j = 0 - max; j <= max; j++) {
-                // System.out.println("  Checking "+(row+i)+"x"+(column+j)+" for possible move");
-                // Get the Cell at this offset
-                Cell newCell = world.getCellAt(location.x + i, location.y + j);
-                
-                // If the found cell != this cell
-                if (newCell != null && newCell != this) {
-                  
-                    // special case for hex, not all within x / y distance
-                    //  are within the true distance...
-                    if (this.distance(newCell) > max || this.distance(newCell) < min) {
-                       // System.err.println("invalid distance from "+this+" to "+newCell+" = "+this.distance(newCell));
-                    	continue;
-                    }
-                    
-                    cells.add(newCell);
-                }
-            }
-        }
-
-        return cells.toArray(new Cell[cells.size()]);
-    }
-    
-    private Cell[] getAdjacentCellsWithOrWithout(Class<?>[] types, boolean with) {
-        Cell[] all = getAdjacentCells();
-        ArrayList<Cell> valid = new ArrayList<Cell>();
-        
-        //System.out.println("Cell adj: "+all.length);
-        
-        boolean validTerrain = !with;
-        boolean validOccupiers = !with;
-        
-        for (int i=0; i<all.length; i++) {
-        	
-        	validTerrain = !with;
-        	validOccupiers = !with;
-        	
-            for (int j=0; j<types.length; j++) {
-            	
-            	
-                if ( (types[j] != null ) ) {
-                
-                	if (all[i].has(types[j])) {
-                		validOccupiers = with;
-                	}
-                	if (types[j].isInstance(all[i])) {
-                		validTerrain = with;
-                	}
-                	
-                }
-            }
-            if (with && (validTerrain || validOccupiers)) {
-            	valid.add(all[i]);
-            } else if (validTerrain && validOccupiers) {
-            	valid.add(all[i]);
-            }
-        }
-         
-        return valid.toArray(new Cell[valid.size()]);
-        
-    }
-    
-    
-    /**
-     * Gets the adjacent cells to this Cell
-     * @return an array of Cells that are adjacent and of the given types.
-     */
-    @Override
-    public Cell[] getAdjacentCellsWithout(Class<?>[] invalidTypes) {
-
-    	return getAdjacentCellsWithOrWithout(invalidTypes, false);
-        
-    }
-    
-    /**
-     * Gets the adjacent cells to this Cell
-     * @return an array of Cells that are adjacent and of the given types.
-     */
-    @Override
-    public Cell[] getAdjacentCellsWith(Class<?>[] validTypes) {
-        
-    	return getAdjacentCellsWithOrWithout(validTypes, true);
-        
-    }
-    
-    /**
-     * Gets the adjacent Cells.
-     * @return an array of adjacent Cells.
-     */
-    @Override
-    public Cell[] getAdjacentCells() {
-        return getNearbyCells(1, 1);
-    }
-  
-    /**
-     * Gets the life in this Cell.
-     * @return the occupier (Life)
-     */
-    @Override
-    public ArrayList<Life> getLives() {
-        return occupiers;
-    }
-  
-    /**
-     * Updates the Life object in this Cell.
-     * @param occupier to set
-     */
-    @Override
-    public void addLife(final Life occupier) {
-        //if(this.occupier != null) this.occupier.destroy(); // already done.
-        
-      
-        this.occupiers.add(occupier);
-        
-        int occupierCount = occupiers.size();
-        Life last = occupiers.get(occupierCount-1);
-        
-        // Get the new Color.
-        Color newColor = last == null ? emptyColor 
-        		: last.getColor();
-        
-        this.paint(newColor);
-        
-    }
-    
-    
-    @Override
-    public void removeLife(final Life occupier) {
-    	if (occupier == null) {
-    		occupiers.clear();
-    		occupiers.trimToSize();
-    		return;
-    	}
-    	occupiers.remove(occupier);
-    	occupiers.trimToSize();
-    }
-    
-    @Override
-    public Life getLife(final Class<?> type) {
-    	for (Life occupier : occupiers) {
-    		if (type.isInstance(occupier)) {
-    			return occupier;
-    		}
-    	}
-    	return null;
-    	
-    }
-    
-    @Override
-    public Life getLife(final Class<?>[] types) {
-    	for (int i = 0; i < types.length; i++) {
-    		Life thisType = getLife(types[i]);
-    		if (thisType != null) {
-    			return thisType;
-    		}
-    	}
-    	return null;
-    }
-    
-    @Override
-    public boolean has(final Class<?> type) {
-    	return getLife(type) != null;
-    }
-    
-    @Override
-    public boolean has(final Class<?>[] types) {
-    	for (int i = 0; i < types.length; i++) {
-    		if (this.has(types[i])) {
-    			return true;
-    		}
-    	}
-    	return false;
-    }
-    
-    @Override
-    public boolean is(final Class<?>[] types) {
-    	for (int i = 0; i < types.length; i++) {
-    		if (types[i].isInstance(this)) {
-    			return true;
-    		}
-    	}
-    	return false;
-    }
-    
+    /*
     @Override
     public Dimension getSize() {
-    	return new Dimension(this.getRadius()*2, getRadius() * 2);
+    	return new Dimension(hex.getRadius()*2, hex.getRadius() * 2);
     }
-    
-    /**
-     * Gets the row this Cell is found in.
-     * @return the row this Cell is found in.
-     */
-    @Override
-    public int getRow() {
-        return location.x; //row;
-    }
-  
-    /**
-     * Sets the row this Cell is found in.
-     * @param row to set.
-     */
-    @Override
-    public void setRow(int row) {
-        location.setLocation(row, location.y);
-    }
-  
-    
-    /**
-     * Gets the column this Cell is found in.
-     * @return the column this Cell is found in.
-     */
-    @Override
-    public int getColumn() {
-        return location.y;
-    }
-  
-    /**
-     * Sets the column this Cell is found in.
-     * @param column to set.
-     */
-    @Override
-    public void setColumn(int column) {
-        location.setLocation(location.x, column);
-    }
-  
-    /**
-     * Gets the World this Cell belongs to.
-     * @return world object.
-     */
-    @Override
-    public World getWorld() {
-        return world;
-    }
+	*/
   
     /**
      * Gets the closest Cell in the haystack to this Cell.
@@ -403,10 +137,12 @@ public class HexCell extends Hexagon implements Cell {
          
     }
 
+    /*
     @Override
     public void recolor() {
     	paint();
     }
+    */
     
     /**
      * Paints this Hexagon with its Occupier's Color.
@@ -417,56 +153,24 @@ public class HexCell extends Hexagon implements Cell {
     		 occupiers.get(occupiers.size() - 1);
          
          // Get the new Color.
-         Color color = last == null ? emptyColor 
+         Color color = last == null ? getEmptyColor() 
          		: last.getColor();
     	
        // if (color == emptyColor) System.out.println("setting empty color "+emptyColor);
-        super.paint(color);
+        hex.paint(color);
     }
     
-    /**
-     * Gets the text to display on this Cell.
-     * @return text to display.
-     */
-    @Override
-    public String getText() {
     
-    	Life occupier = occupiers.size() == 0 ? null : 
-    		occupiers.get(occupiers.size() - 1);
-    	
-        if (World.SHOW_FOOD
-            && occupier != null) {
-          
-            // Get food supply
-            int supply = occupier.getLifeLeft();
-            return "" + supply;
-          
-        } else if (World.SHOW_MOVES 
-            && occupier != null && occupier instanceof Moveable) {
-
-            Moveable<?> mover = (Moveable<?>)occupier;
-          
-            // Get types we can move into.
-            Class<?>[] types = mover.getInvalidMoveToTypes();
-
-            
-            // Get the number of possible moves.
-            int moves = mover.getMoveToPossibilities(
-                types, mover.getMoveMin(), mover.getMoveMax()).length;
-            return "" + moves;
-        
-        } else if (World.SHOW_COORDINATES) {
-            
-            // Simply ROWxCOL.
-            return location.x + "," + location.y;
-        }
-      
-        return " ";
-      
-    }
     
     public void setText(String text) {
     	
+    }
+    
+    public void draw(final Graphics2D graphics, int valueX, int valueY, 
+        int lineThickness, final Color colorValue, boolean filled) {
+        
+        hex.draw(graphics, valueX, valueY, lineThickness, colorValue, filled);
+        
     }
     
     /**

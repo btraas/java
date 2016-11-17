@@ -12,8 +12,6 @@ import java.util.Random;
  * @author Brayden Traas
  * @version 2016-10-22
  */
-
-@SuppressWarnings("serial")
 public class Herbivore extends Animal {
 
     private static final Color COLOR = Color.YELLOW;

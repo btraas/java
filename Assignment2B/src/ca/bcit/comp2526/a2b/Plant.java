@@ -10,7 +10,6 @@ import java.awt.Color;
  * @author Brayden Traas
  * @version 2016-10-22
  */
-@SuppressWarnings("serial")
 public class Plant extends Life {
 
     private static final Color CELL_COLOR = Color.GREEN;
@@ -24,6 +23,7 @@ public class Plant extends Life {
     private static final int MIN_REPRODUCE_EMPTY_SPACES = 2;
     
     private static final Class<?>[] FOOD_TYPES = {};
+    private static final Class<?>[] INCOMPATIBLE_TYPES = {WaterCell.class};
     
     
     public Plant(final Cell location) {
@@ -32,6 +32,7 @@ public class Plant extends Life {
         this.maxReproduce = MAX_REPRODUCE;
         this.reproduceNeighbors = MIN_REPRODUCE_NEIGHBORS;
         this.reproduceEmptySpaces = MIN_REPRODUCE_EMPTY_SPACES;
+        this.incompatibleTypes = INCOMPATIBLE_TYPES;
     }
     
     /**
