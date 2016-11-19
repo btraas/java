@@ -12,15 +12,13 @@ import java.util.Random;
  * @author Brayden Traas
  * @version 2016-11-11
  */
-
-@SuppressWarnings("serial")
 public class Omnivore extends Animal {
 
     private static final Color COLOR = Color.MAGENTA;
     private static final int INITIAL_FOOD = 4;
     private static final int EAT_AMOUNT = 4;
 
-    private static final Class<?>[] FOOD_TYPES = { Life.class, WaterCell.class }; // but not this type
+    private static final Class<?>[] FOOD_TYPES = { Life.class, WaterCell.class };
     private static final Class<?>[] INVALID_MOVE_TO_TYPES = { Omnivore.class };
     private static final Class<?>[] PREDATOR_TYPES = { Carnivore.class };
     

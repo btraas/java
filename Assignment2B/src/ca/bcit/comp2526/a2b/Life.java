@@ -49,6 +49,8 @@ public abstract class Life {
     protected int life = 4;
     protected int eatAmount = 0;
 
+    protected Cell previousLocation = null;
+    
  
     /**
      * Creates a Life.
@@ -63,39 +65,16 @@ public abstract class Life {
         this.foodTypes = foodTypes;
         
       
-        
         this.location = location;
-        
+
+
         //setBackground(location.getEmptyColor());
         //setSubLocation();
-        location.setText(location.getText());
+        //location.setText(location.getText());
         //repaint();
     }
-    /*
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(color);
-        
-       
-        setBackground(location.getEmptyColor());
-            g2.fillOval(subLocation.x, subLocation.y, size.width, size.height);
-        
-    }
     
-    protected void setSubLocation() {
-    	Random rand = location.getWorld().getSeed();
-    	
-    	int pointX = location.getSize().width / 2;
-    	int pointY = location.getSize().height / 2;
-    	
-        subLocation = new Point(
-        		rand.nextInt(Math.max(1, pointX)),
-        		rand.nextInt(Math.max(1, pointY)));
-    }
-    */
+    protected abstract Life create(final Cell location);
     
     /**  
      * Can be overriden. Explicitly specify what happens to this type of Life
@@ -103,6 +82,11 @@ public abstract class Life {
      * 
      */
     public void processTurn() {
+    	
+    	if(World.DEBUG) {
+    		System.out.println("Processing turn for a " + this.getClass().getSimpleName() + " in " + getCell());
+    	}
+    	
     	this.darken();
     	if (--life < 0) {
             if (this.getCell() != null) {
@@ -111,6 +95,8 @@ public abstract class Life {
             this.destroy();
             return;
         }
+    	
+    	
     }
     
     /**
@@ -149,6 +135,14 @@ public abstract class Life {
         return location;
     }
     
+    /**
+     * Returns the previous location of the life.
+     * @return the previous location
+     */
+    public Cell getPreviousCell() {
+    	return previousLocation;
+    }
+    
     
     /**
      * Returns the color of the life.
@@ -179,7 +173,7 @@ public abstract class Life {
      * 
      */
     protected void reproduce() {
-    	//System.out.println("Reproducing "+this.getClass().getSimpleName());
+    	// System.out.println("Reproducing "+this.getClass().getSimpleName());
         Cell thisCell = getCell();
         if (thisCell == null) {
             System.err.println("CELL IS NULL!?!?!");
@@ -192,18 +186,19 @@ public abstract class Life {
         Cell[] nearbySpecies = getCell().getAdjacentCellsWith(new Class[]{getClass()});
         
         // Gets adjacent cells that 'aren't-a' and don't 'contain a' Life or Terrain object.
-        Cell[] nearbyEmpty   = getCell().getAdjacentCellsWithout(new Class[]{Life.class, Terrain.class});
+        Cell[] nearbyEmpty   = getCell().getAdjacentCellsWithout(new Class[]{Life.class, WaterCell.class});
         
         // Gets adjacent cells that are-a or contain-a type we can eat.
         Cell[] nearbyFood    = getCell().getAdjacentCellsWith(this.foodTypes);
         
+       // System.out.println("REPRODUCING PLANT "+thisCell.toString()+" nearby cells: "+getCell().getAdjacentCells().length+": nearbyplants:"+nearbySpecies.length + " nearbyempty:" + nearbyEmpty.length);
      
         if (    nearbySpecies.length < reproduceNeighbors
             ||  nearbyEmpty.length < reproduceEmptySpaces
             ||  nearbyFood.length < reproduceFood) {
             return;
         }
-       //  System.out.println("DING DING Reproducing "+this);
+        // System.out.println("DING DING Reproducing "+this);
         
         int offspringCount = getCell().getWorld().getSeed().nextInt(
             (maxReproduce - minReproduce) + 1) + minReproduce;
@@ -231,7 +226,6 @@ public abstract class Life {
     
     }
     
-    protected abstract Life create(final Cell location);
     
     private static int colorBound(int in) {
         return Math.max(Math.min(in, MAX_COLOR), 0);
@@ -259,9 +253,6 @@ public abstract class Life {
     						colorBound(red),
     						colorBound(green),
     						colorBound(blue));
-    	if (location != null) {
-    		location.recolor();
-    	}
     }
     
    
@@ -282,33 +273,11 @@ public abstract class Life {
         return life;
     }
     
-    // JPanel stuff
-    /*
-    @Override
-    protected void paintComponent(Graphics graphics) {
-        super.paintComponent(graphics);
-        Graphics2D g2d = (Graphics2D) graphics;
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        draw(g2d, getWidth(), getHeight());
-        
-        System.out.println("drawing a circle..");
-
-    }
-*/
-    /*
-    @Override
-    public Dimension getPreferredSize() {
-        return size;
-    }
-    
-    private void draw(Graphics2D g2d, int w, int h) {
-        g2d.setColor(color);
-        g2d.fillOval(5, 5, w / 2, h / 2);
-    }
-    */
+   
     
     public String toString() {
-    	Point point = getCell().getLocation();
+    	
+    	Point point = getCell() == null ? new Point(0, 0) : getCell().getLocation();
         return this.getClass().getSimpleName() + " Life:" + getLifeLeft() 
         	+ " Loc:"+point.x+","+point.y;
     }

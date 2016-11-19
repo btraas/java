@@ -16,6 +16,7 @@ import java.awt.event.MouseListener;
 public final class TurnListener extends MouseAdapter implements MouseListener, KeyListener {
 
 	private static final int TURN_SPEED_MS = Settings.getInt("turnSpeedMS");
+	private static boolean RUNNING = false;
 	
     private GameFrame worldFrame;
   
@@ -33,7 +34,12 @@ public final class TurnListener extends MouseAdapter implements MouseListener, K
      */
     @Override
     public void mouseReleased(final MouseEvent event) {
-        worldFrame.takeTurn();
+        if (RUNNING) {
+        	return;
+        }
+        RUNNING = true;
+    	worldFrame.takeTurn();
+    	RUNNING = false;
     }
     
     /**
@@ -42,25 +48,30 @@ public final class TurnListener extends MouseAdapter implements MouseListener, K
     @Override
 	public void keyReleased(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-			//while (worldFrame.getWorld().getLives().size() > 0) {
-				
-			final TurnListener parent = this;
-			new Thread(new Runnable() {
-				public void run() {
-					World world = parent.worldFrame.getWorld();
-					while (world.getLives().size() > 0) {
-						parent.worldFrame.takeTurn();
-						try {
-							Thread.sleep(TURN_SPEED_MS);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-			}).start();
 			
-			System.out.println("done");
+			// If already running, stop. Using a variable instead of killing the thread,
+			//  so the turn is finished.
+			if (RUNNING) {
+				RUNNING = false;
+			} else {
+				RUNNING = true;
+				final TurnListener parent = this;
+				new Thread(new Runnable() {
+					public void run() {
+						World world = parent.worldFrame.getWorld();
+						while (RUNNING && world.getLives().size() > 0) {
+							parent.worldFrame.takeTurn();
+							try {
+								Thread.sleep(TURN_SPEED_MS);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						RUNNING = false;
+					}
+				}).start();
+			}
 		}
 
 	}

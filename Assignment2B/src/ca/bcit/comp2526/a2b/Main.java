@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import java.io.IOException;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 /**
  * Main.
@@ -67,21 +68,27 @@ public final class Main {
     
     public static void createWorld() throws IOException  {
     	final World world; // You need a World class
-        final GameFrame frame;
+        final GameFrame frame; 
 
         // Now loaded at Main Class initialization, before main() method.
         //Settings.load();
         
         world = new World(Settings.getInt(WORLD_SIZE_X), Settings.getInt(WORLD_SIZE_Y));
         world.init();
-
+        
+        
         // Load the grid type. Either Square or Hex.
         
-        if (Settings.get(GRID_TYPE).equalsIgnoreCase(HEX_GRID)) {
-            frame = new HexFrame(world);
+        JPanel panel;
+        String gridType = Settings.get(GRID_TYPE);
+        if (gridType.equalsIgnoreCase(HEX_GRID)) {
+            panel = new HexPanel(world);
         } else {
-            frame = new GameFrame(world);
+            panel = new SquarePanel(world);
         }
+        frame = new GameFrame(world);
+        frame.setTitle("Assignment 2B");
+        frame.add(panel);
         
         position(frame);
         frame.init();

@@ -52,6 +52,7 @@ public final class Settings extends JFrame {
     
     private static final String filename = "settings.properties";
     private static final int DEFAULT_WORLDSIZE = 25;
+    private static final int DEFAULT_CELLSIZE = 20;
     private static final int DEFAULT_INT = 0;
  
     // Assign defaults to DEFAULT HashMap.
@@ -68,6 +69,7 @@ public final class Settings extends JFrame {
         // How big to create the world.
         DEFAULTS.add(new Setting("worldsizex", "" + DEFAULT_WORLDSIZE, "Number of columns"));
         DEFAULTS.add(new Setting("worldsizey", "" + DEFAULT_WORLDSIZE, "Number of rows"));
+        DEFAULTS.add(new Setting("cellradius", "" + DEFAULT_CELLSIZE, "Cell size (px)"));
         
         // What data to place in the Cells. Options:
         //  'food', 'coordinate', 'moves', 'none'

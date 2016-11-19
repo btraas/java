@@ -69,10 +69,10 @@ public class Herbivore extends Animal {
       
         // Goal = foodSupply+1; Animal will follow food even if they can't quite make it.
 
-        //int supply = life + 1;
-        //return (new DistanceDecision(seed, options, 
-        //        FOOD_TYPES, PREDATOR_TYPES, getCell(), supply)).decide();
-         return (new NearbyDecision(seed, options, FOOD_TYPES, PREDATOR_TYPES)).decide();  
+        int supply = life + 1;
+        return (new DistanceDecision(seed, options, 
+                FOOD_TYPES, PREDATOR_TYPES, getCell(), supply)).decide();
+        // return (new NearbyDecision(seed, options, FOOD_TYPES, PREDATOR_TYPES)).decide();  
         // return (new NearbyFoodDecision(seed, options, FOOD_TYPES)).decide();
         // return (new MoveDecision(seed, options)).decide();
     }

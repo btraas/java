@@ -1,7 +1,5 @@
 package ca.bcit.comp2526.a2b;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Point;
 
 /**
@@ -11,18 +9,13 @@ import java.awt.Point;
  * @author Brayden Traas
  * @version 2016-11-02
  */
-@SuppressWarnings("serial")
 public class HexCell extends Cell {
    
     private static final String UNLIKE_TYPES = "Comparing unlike Cell types!!";
 
     private static final float HALF = 0.5f;
-    
-    private static final String TYPE_AT = "Cell @";
-    
-    
-    protected Hexagon hex;
-    
+
+   
     /**
      * Instantiates a HexCell.
      * 
@@ -33,62 +26,27 @@ public class HexCell extends Cell {
      * @param valueY - true position y of this Hex.
      * @param radius of the Hexagon.
      */
-    public HexCell(final World world, int row, int col, int valueX, int valueY, int radius) {
+    public HexCell(final World world, int row, int col) {
     	super(world, row, col);
-        hex = new Hexagon(new Point(valueX, valueY), radius);
+        //hex = new Hexagon(new Point(valueX, valueY), radius, getEmptyColor());
         //this.circle = new Circle(10, Color.GREEN);
-        init();
-    }
-    
-    
-    /*
-    @Override
-    public Dimension getSize() {
-    	return new Dimension(hex.getRadius()*2, hex.getRadius() * 2);
-    }
-	*/
-  
-    /**
-     * Gets the closest Cell in the haystack to this Cell.
-     * @param haystack - an array of Cell objects to search through.
-     * @return Cell from the haystack that's closest.
-     */
-    @Override
-    public Cell closest(final Cell[] haystack) {
-        Cell needle = this;
         
-        if (haystack.length == 0 || needle == null) {
-            return null;
-        } else if (!(haystack[0] instanceof HexCell) ) {
-            return null;
-        } else if (haystack.length == 1) {
-            return haystack[0];
-        }
-       
-        Point goal = needle.getLocation();
-       
-        Cell closest = haystack[0];
-        double closestDistance = goal.distance(closest.getLocation());
-       
-        for (int i = 0; i < haystack.length; i++) {
-          
-            if (goal.distance(haystack[i].getLocation()) < closestDistance) {
-                closest = haystack[i];
-                closestDistance = goal.distance(closest.getLocation());
-            }
-       
-        }
-       
-        return closest;
+        init();     
     }
-
+    
+    
+    @Override
+    public Class<?> getShape() {
+    	return HexCell.class;
+    }
+    
     /**
      * Finds the distance between this Cell and another Cell.
      * @param other Cell to compare with.
      * @return distance (double) between the two.
      */
-    @Override
-    public double distance(final Cell other) {
+    //@Override
+    public double distanceOld(final Cell other) {
 
         if (!(other instanceof HexCell)) {
             throw new RuntimeException(UNLIKE_TYPES);
@@ -136,56 +94,76 @@ public class HexCell extends Cell {
         return distance;
          
     }
-
-    /*
-    @Override
-    public void recolor() {
-    	paint();
-    }
-    */
     
     /**
-     * Paints this Hexagon with its Occupier's Color.
+     * Finds the distance between this Cell and another Cell.
+     * @param other Cell to compare with.
+     * @return distance (double) between the two.
      */
-    public void paint() {
-    	
-    	 Life last = occupiers.size() == 0 ? null :
-    		 occupiers.get(occupiers.size() - 1);
+    @Override
+    public double distance(final Cell other) {
+
+    	// Must be a HexCell.
+        if (!(other instanceof HexCell)) {
+            throw new RuntimeException(UNLIKE_TYPES);
+        }
+        
+        // Instantly return Cell if this is the same cell.
+        if (this.equals(other)) {
+            return 0.0;
+        }
+        
+
+        
+        
+        // If on the same column
+        if (this.getColumn() == other.getColumn()) {
+            return Math.abs(this.getRow() - other.getRow());
+        }
+ 
+        Point otherTheoretical = new Point(other.getLocation());
+        
+        /*
+         * Backwards, I know... Too late to go back now
+         * 
+         */
+        int thisX = getRow();
+        int thisY = getColumn();
+        int otherX = other.getRow();
+        int otherY = other.getColumn();
+        
+        
+        
+        double diffY = Math.abs(thisY - otherY);
+        
+        // If this is even and other isn't
+        if ( (thisX % 2) == 0 && (otherX % 2) != 0) {
+            
+            if (thisY < otherY) {
+                otherTheoretical.y--;
+            }
+
+        }
+        
+    
+        // int distance = max(    
+        int dist1 = (int)Math.ceil(1 - (otherX / 2)) + (int)otherY;
+        dist1 -= ((int)Math.ceil(1 - (thisX / 2)) + (int)thisY);
+        dist1 = Math.abs(dist1);
          
-         // Get the new Color.
-         Color color = last == null ? getEmptyColor() 
-         		: last.getColor();
-    	
-       // if (color == emptyColor) System.out.println("setting empty color "+emptyColor);
-        hex.paint(color);
-    }
-    
-    
-    
-    public void setText(String text) {
-    	
-    }
-    
-    public void draw(final Graphics2D graphics, int valueX, int valueY, 
-        int lineThickness, final Color colorValue, boolean filled) {
+        int dist2 = -otherX - (int)Math.ceil(1 - (otherX / 2)) 
+                    - (int)otherY;
+        dist2 += thisX + Math.ceil(1 - (thisX / 2)) + thisY;
+        dist2 = Math.abs(dist2);
+          
+        //System.out.println("\n diffX:"+diffX+" dist1:"+dist1+" dist2:"+dist2 );
+        int distance = Math.max(Math.max(dist1, dist2), (int)diffY);
+              
+        //System.out.println("distance from "+this+" to "+other+" is "+distance);
         
-        hex.draw(graphics, valueX, valueY, lineThickness, colorValue, filled);
-        
+        return distance;
+         
     }
-    
-    /**
-     * Gets the String of this SquareCell object.
-     * @return String representing this object.
-     */
-    @Override
-    public String toString() {
-        //String life = getLives().toString();
-        //return TYPE_AT + getLocation().toString() + CONTAINS + life;
-    	return TYPE_AT + getLocation().x + "," + getLocation().y;
-    }
-
-	
-   
     
 }
 

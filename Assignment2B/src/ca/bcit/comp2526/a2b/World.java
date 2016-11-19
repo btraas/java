@@ -3,7 +3,8 @@ package ca.bcit.comp2526.a2b;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 /**
@@ -17,6 +18,11 @@ public final class World {
 
 	private static long lastTime;
 	//private static int lastTotal;
+	
+	/**
+	 * Debug this application?
+	 */
+    public static final boolean DEBUG = Settings.getBoolean("debug");
 	
     /**
      * Decides if we show food on each Cell.
@@ -38,7 +44,6 @@ public final class World {
      * Decides if borders are visible.
      */
     public static final boolean VISIBLE_LINES = Settings.getBoolean("visibleLines");
-    
     
     
     private final long seed;
@@ -77,14 +82,7 @@ public final class World {
         // the World object doesn't know the type of the Cell (Hexagon or Square)
         cells = new Cell[rows][columns];
        
-        /*
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
-                cells[i][j] = new Cell(this, i, j);
-                cells[i][j].setLife(Creator.createLife(cells[i][j], randomSeed));
-            }
-        }
-        */
+       
     }
 
     /**
@@ -113,7 +111,15 @@ public final class World {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
               
-                if (cells[i][j] != null && cells[i][j].getLife(Object.class) != null) {
+            	/*
+            	 *  getLife(Life.class) denotes:
+            	 * 	 Get any life that:
+            	 *   	: is-a Life
+            	 *   
+            	 *   Ergo, any life.
+            	 */
+            	
+                   if (cells[i][j] != null && cells[i][j].getLife(Life.class) != null) {
                     lives.addAll(cells[i][j].getLives());
                 }
             }
@@ -143,13 +149,14 @@ public final class World {
       
         ArrayList<Life> lives = getLives();
         
+        boolean debug = Settings.getBoolean("debug");
         // Shuffle the order of the lives to process with the World's seed.
-       // Collections.shuffle(lives, getSeed());
-        
-        HashMap<Class<?>, Integer> map = new HashMap<Class<?>, Integer>();
-        map.put(Plant.class, 0);
-        map.put(Herbivore.class, 0);
-        map.put(Carnivore.class, 0);
+        if (!debug) {
+        	Collections.shuffle(lives, getSeed());
+        } else {
+        	runDebug();
+        }
+        //if(debug) return;
         
         // Do this separately so we don't reprocess tiles.
         for (Life occupier: lives) {
@@ -159,34 +166,28 @@ public final class World {
             }
         }
         
-       // int plants = map.get(Plant.class);
-       //  int herbs = map.get(Herbivore.class);
-       // int carns = map.get(Carnivore.class);
-       // System.out.print("Plants:"+plants+" Herbs:"+herbs
-       // 	+" Carns:"+carns + " Total: " + (plants+herbs+carns));
-       // lastTotal = plants+herbs+carns;
-        
-        // Update text on each cell. Only for square cells... HexCells are handled differently.
-       repaintCells();
+    
         
     }
 
-    
-    /**
-     * Repaints cells.
-     */
-    public void repaintCells() {
+    private void runDebug() {
+
+    	int lives = 0;
+    	
     	for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
-              
-                if (cells[i][j] != null && (cells[i][j] instanceof SquareCell)) {
-                    ((SquareCell)cells[i][j]).setText();
-                    //((SquareCell)cells[i][j]).recolor();
-                }
-            }
-        }
+    		for (int j = 0; j < columns; j++) {
+    			Life l = cells[j][i].getLife(Life.class);
+    			if (l != null)
+    				lives += cells[j][i].getLives().size();
+    				//System.out.print(cells[j][i].getLives().size()+",");
+    		}
+    		//System.out.println();
+    	}
+    	System.out.println("lives: "+lives+" found: "+getLives().size());
+    	
     }
     
+
     
     /**
      * Creates & returns the Cell at this location.

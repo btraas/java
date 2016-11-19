@@ -1,17 +1,12 @@
 package ca.bcit.comp2526.a2b;
 
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.Border;
 
 /**
  * <p>Cells within a world.</p>
@@ -23,16 +18,14 @@ import javax.swing.border.Border;
  * @author Brayden Traas
  * @version 2016-10-22
  */
-@SuppressWarnings("serial")
-public abstract class Cell extends JPanel {
+public abstract class Cell implements Terrain {
 
 
-  
 	
     /**
      * The Cell's empty color.
      */
-	public static final Color EMPTY_COLOR = new Color(163, 117, 73);
+	public static final Color EMPTY_COLOR = new Color(163, 117, 73); // brown
 
     /**
      * The Cell's border color.
@@ -45,46 +38,43 @@ public abstract class Cell extends JPanel {
     public static final Color TEXT_COLOR = Color.WHITE;
     
     
-    private static final Dimension PREFERRED_SIZE = new Dimension(10, 10);
-    private static final Border CELL_BORDER = BorderFactory.createLineBorder(BORDER_COLOR);
-    private static final String CONTAINS = " containing a ";
     
     //protected int row;
     //protected int column;
     protected World world;
-    private Point location;
+    protected final Point location;
     
     protected ArrayList<Life> occupiers = new ArrayList<Life>();
-    protected Circle circle;
-    protected JLabel text;
-    
+ 
     protected Color lifeColor = getEmptyColor();
     
     public Cell(final World world, int row, int column) {
     	this.world = world;
     	location = new Point(row, column);
     	
-        this.setPreferredSize(PREFERRED_SIZE);
-        if (World.VISIBLE_LINES) {
-            this.setBorder(CELL_BORDER);
-        }
-        
-        setLayout(new BorderLayout());
-        setBackground(getEmptyColor());
-        
-        this.text = new JLabel("");
-        this.circle = new Circle(10, getEmptyColor());
-        circle.setBackground(getEmptyColor());
-        //this.circle = new Circle(10, Color.GREEN, circleOffsetX, circleOffsetY);
-        
     }
     
+    /**
+     * Gets the shape type of this Cell, regardless of its true type.
+     * Eg: WaterHexCell and HexCell both return HexCell.class
+     * @return the Shape class of this Cell.
+     */
+    public abstract Class<?> getShape();
+    
+    /**
+     * Calculates the distance between this Cell and a given Cell.
+     * @param other Cell to compare with.
+     * @return the distance.
+     */
+    public abstract double distance(final Cell other);
+    
+  
     /**
      * 
      */
     public void init() {
-        add(text);
-        add(circle);
+        //add(text);
+        //add(circle);
     }
     
     /**
@@ -141,39 +131,19 @@ public abstract class Cell extends JPanel {
         return cells.toArray(new Cell[cells.size()]);
     }
     
-    private Cell[] getAdjacentCellsWithOrWithout(Class<?>[] types, boolean with) {
+    private Cell[] getAdjacentCellsWithAndWithout(final Class<?>[] mustHaveOrBe, final Class<?>[] mustNotHaveOrBe) {
         Cell[] all = getAdjacentCells();
         ArrayList<Cell> valid = new ArrayList<Cell>();
         
         //System.out.println("Cell adj: "+all.length);
         
-        boolean validTerrain = !with;
-        boolean validOccupiers = !with;
         
         for (int i=0; i<all.length; i++) {
         	
-        	validTerrain = !with;
-        	validOccupiers = !with;
-        	
-            for (int j=0; j<types.length; j++) {
-            	
-            	
-                if ( (types[j] != null ) ) {
-                
-                	if (all[i].has(types[j])) {
-                		validOccupiers = with;
-                	}
-                	if (types[j].isInstance(all[i])) {
-                		validTerrain = with;
-                	}
-                	
-                }
-            }
-            if (with && (validTerrain || validOccupiers)) {
-            	valid.add(all[i]);
-            } else if (validTerrain && validOccupiers) {
+            if (all[i].hasOrIs(mustHaveOrBe) && !all[i].hasOrIs(mustNotHaveOrBe)) {
             	valid.add(all[i]);
             }
+            
         }
          
         return valid.toArray(new Cell[valid.size()]);
@@ -185,9 +155,9 @@ public abstract class Cell extends JPanel {
      * Gets the adjacent cells to this Cell
      * @return an array of Cells that are adjacent and of the given types.
      */
-    public Cell[] getAdjacentCellsWithout(Class<?>[] invalidTypes) {
+    public Cell[] getAdjacentCellsWithout(final Class<?>[] invalidTypes) {
 
-    	return getAdjacentCellsWithOrWithout(invalidTypes, false);
+    	return getAdjacentCellsWithAndWithout(new Class[] {Cell.class}, invalidTypes);
         
     }
     
@@ -195,9 +165,9 @@ public abstract class Cell extends JPanel {
      * Gets the adjacent cells to this Cell
      * @return an array of Cells that are adjacent and of the given types.
      */
-    public Cell[] getAdjacentCellsWith(Class<?>[] validTypes) {
+    public Cell[] getAdjacentCellsWith(final Class<?>[] validTypes) {
         
-    	return getAdjacentCellsWithOrWithout(validTypes, true);
+    	return getAdjacentCellsWithAndWithout(validTypes, null);
         
     }
     
@@ -205,46 +175,56 @@ public abstract class Cell extends JPanel {
      * Gets the adjacent Cells.
      * @return an array of adjacent Cells.
      */
-    public Cell[] getAdjacentCells() {
+    public final Cell[] getAdjacentCells() {
         return getNearbyCells(1, 1);
     }
   
     /**
-     * Gets the life in this Cell.
+     * Gets all the lives in this Cell.
      * @return the occupier (Life)
      */
-    public ArrayList<Life> getLives() {
+    public final ArrayList<Life> getLives() {
         return occupiers;
     }
     
-    
-    protected Color getLifeColor() {
-    	int occupierCount = occupiers.size();
-        Life last = occupiers.get(occupierCount-1);
-        
-        // Get the new Color.
-        lifeColor = last == null ? getEmptyColor() 
-        		: last.getColor();
-        return lifeColor;
+    /**
+     * Gets the matching lives in this Cell.
+     * @return the occupiers that match.
+     */
+    public final ArrayList<Life> getLives(final Class<?>[] validTypes) {
+    	ArrayList<Life> newLives = new ArrayList<Life>();
+    	if (occupiers == null || occupiers.size() == 0) {
+    		return newLives;
+    	}
+    	for (Life life : occupiers) {
+    		for (int i = 0; i < validTypes.length; i++) {
+    			// Check if this Life is this valid type, and
+    			//  add if we haven't already.
+    			if (validTypes[i].isInstance(life) 
+    				&& !newLives.contains(life)) {
+    				newLives.add(life);
+    			}
+    		}
+    	}
+    	return newLives;
     }
     
     /**
      * Updates the Life object in this Cell.
      * @param occupier to set
      */
-    public void addLife(final Life occupier) {
+    public final void addLife(final Life occupier) {
         //if(this.occupier != null) this.occupier.destroy(); // already done.
           
         this.occupiers.add(occupier);
-        
-        recolor();
+
     }
     
     /**
      * Removes a Life object this Cell contains.
      * @param occupier to remove for this Cell.
      */
-    public void removeLife(final Life occupier) {
+    public final void removeLife(final Life occupier) {
     	if (occupier == null) {
     		occupiers.clear();
     		occupiers.trimToSize();
@@ -252,20 +232,34 @@ public abstract class Cell extends JPanel {
     	}
     	occupiers.remove(occupier);
     	occupiers.trimToSize();
-    	
-    	recolor();
     }
+    
+
     
     /**
      * Get a Life object this Cell contains of this type.
      * @param type to select
+     * @param exception to not select
      * @return Life of this type found.
      */
-    public Life getLife(final Class<?> type) {
+    public final Life getLife(final Class<?> type, final Class<?>[] classException, final Object objectException) {
     	
     	for (Life occupier : occupiers) {
-    		if (type.isInstance(occupier)) {
-    			return occupier;
+    		
+    		// If we have one of the desired types.
+    		if (type.isInstance(occupier) &&  occupier != objectException) {
+    			if (classException == null) {
+    				return occupier;
+    			}
+    			boolean valid = true;
+    			for (int i = 0; i < classException.length; i++) {
+    				if(classException[i].isInstance(occupier)) {
+    					valid = false;
+    				}	
+    			}
+    			if(valid) {
+    				return occupier;
+    			}
     		}
     	}
     	return null;
@@ -275,11 +269,12 @@ public abstract class Cell extends JPanel {
     /**
      * Get a Life object this Cell contains of these types.
      * @param types to select
+     * @param exception to not select
      * @return Life of this type found.
      */
-    public Life getLife(final Class<?>[] types) {
+    public final Life getLife(final Class<?>[] types, final Class<?>[] classException, final Object objectException) {
     	for (int i = 0; i < types.length; i++) {
-    		Life thisType = getLife(types[i]);
+    		Life thisType = getLife(types[i], classException, objectException);
     		if (thisType != null) {
     			return thisType;
     		}
@@ -287,38 +282,87 @@ public abstract class Cell extends JPanel {
     	return null;
     }
     
+    
+    /**
+     * Get a Life object this Cell contains of this type.
+     * @param type to select
+     * @return Life of this type found.
+     */
+    public final Life getLife(final Class<?> type) {
+    	// boolean is a dummy class...
+    	return getLife(type, null, null);
+    }
+    
+
+    /**
+     * Get a Life object this Cell contains of these types.
+     * @param types to select
+     * @return Life of this type found.
+     */
+    public final Life getLife(final Class<?>[] types) {
+    	return getLife(types, null, null);
+    }
+    
     /**
      * Returns true if this Cell has a Life of this type
      * @param types to check
+     * @param exception to not want
      * @return true if it has this, otherwise false.
      */
-    public boolean has(final Class<?> type) {
-    	return getLife(type) != null;
+    public final boolean has(final Class<?> type, final Class<?>[] classException, final Object objectException) {
+    	return getLife(type, classException, objectException) != null;
     }
+    
+
     
     /**
      * Returns true if this Cell has a Life of one of these types
      * @param types to check
+     * @param exception to not want
      * @return true if it has this, otherwise false.
      */
-    public boolean has(final Class<?>[] types) {
+    public final boolean has(final Class<?>[] types, final Class<?>[] exceptionClass, final Object exceptionObject ) {
     	if (types == null) {
     		return false;
     	}
     	for (int i = 0; i < types.length; i++) {
-    		if (this.has(types[i])) {
+    		if (this.has(types[i], exceptionClass, exceptionObject)) {
     			return true;
     		}
     	}
     	return false;
     }
     
+
+
+    /**
+     * Returns true if this Cell has a Life of this type
+     * @param types to check
+     * @param exception to not want
+     * @return true if it has this, otherwise false.
+     */
+    public final boolean has(final Class<?> type) {
+    	return getLife(type, null, null) != null;
+    }
+    
+    
+    /**
+     * Returns true if this Cell has a Life of one of these types
+     * @param types to check
+     * @param exception to not want (can be null)
+     * @return true if it has this, otherwise false.
+     */
+    public final boolean has(final Class<?>[] types) {
+    	return has(types, null, null);
+    }
+    
+    
     /**
      * Returns true if this Cell is an instance of these types.
      * @param types to check for.
      * @return true if this is one of the given types.
      */
-    public boolean is(final Class<?>[] types) {
+    public final boolean is(final Class<?>[] types) {
     	if (types == null) {
     		return false;
     	}
@@ -331,11 +375,27 @@ public abstract class Cell extends JPanel {
     }
     
     /**
+     * Public shortcut to see if this is or has one of these types.
+     * @param types to check.
+     * @return true if this is or has one of these types.
+     */
+    public final boolean hasOrIs(final Class<?>[] types) {
+    	if (types == null) {
+    		return false;
+    	}
+    	return (this.has(types) || this.is(types));
+    }
+    
+
+    
+    
+    /**
      * Gets the size of this Cell.
      * @return the size as a Dimension.
      */
 	public Dimension getSize() {
-		return super.getSize(null);
+	//	return super.getSize(null);
+		return null;
 	}
     
     /**
@@ -383,14 +443,39 @@ public abstract class Cell extends JPanel {
      * @param haystack - an array of Cells to choose from.
      * @return the decided cell.
      */
-    public abstract Cell closest(final Cell[] haystack);
+    public final Cell closest(final Cell[] haystack) {
+            
+        // If no haystack provided.
+        if (haystack == null || haystack.length == 0) {
+            return null;
+        } else if (!(haystack[0] instanceof Cell) ) {
+            return null;
+        } else if (haystack.length == 1) {
+            return haystack[0];
+        }
+       
+        Point goal = this.getLocation();
+       
+        // Assign closest = first in haystack.
+        Cell closest = haystack[0];
+        // Assign closest distance = distance to first.
+        double closestDistance = goal.distance(closest.getLocation());
+       
+        // Iterate over each in haystack and update closest variable
+        //  if this is closer.
+        for (int i = 0; i < haystack.length; i++) {
+          
+            if (goal.distance(haystack[i].getLocation()) < closestDistance) {
+                closest = haystack[i];
+                closestDistance = goal.distance(closest.getLocation());
+            }
+       
+        }
+       
+        return closest;
+     
+    }
     
-    /**
-     * Calculates the distance between this Cell and a given Cell.
-     * @param other Cell to compare with.
-     * @return the distance.
-     */
-    public abstract double distance(final Cell other);
     
     /**
      * Gets the text to display on this Cell.
@@ -431,40 +516,62 @@ public abstract class Cell extends JPanel {
         return " ";
       
     }
+
+
     
-    /**
-     * Sets the text to display on this Cell.
-     * @param the text to display.
-     * @param text
-     */
-    public abstract void setText(String text);
+
+    @Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((world == null) ? 0 : world.hashCode());
+		result = prime * result + ((getShape() == null) ? 0 : getShape().hashCode());
+		result = prime * result + ((location == null) ? 0 : location.hashCode());
+			
+		
+		return result;
+	}
+
     
-    /**
-     * Recolor this cell.
-     */
-    public final void recolor() {
-    	occupiers.trimToSize();
-    	int occupierCount = occupiers.size();
-        Life last = occupierCount > 0 ? 
-        		occupiers.get(occupierCount-1) : null;
-        
-        // Get the new Color.
-        Color newColor = (last == null ? getEmptyColor() 
-        		: last.getColor());
-        
-        circle.paint(newColor);
-        
+    @Override
+    public boolean equals(final Object other) {
+    	if (other == null) {
+    		return false;
+    	}
+    	if (other == this) {
+    		return true;
+    	}
+    	if (!(other instanceof Cell)) {
+    		return false;
+    	}
+    	
+    	Cell otherCell = (Cell)other;
+    	
+    	// Checking if it's the same world, not equivalent.
+    	// Shape denotes whether this object is a SquareCell, HexCell etc.
+    	if (  this.getWorld() == otherCell.getWorld()
+    	   && this.getShape().equals(otherCell.getShape())
+    	   && this.getLocation().equals(otherCell.getLocation()) ) {
+    		return true;
+    	}
+    	
+    	return false;
     }
     
-    /**
+
+	/**
      * Gets the String of this SquareCell object.
      * @return String representing this object.
      */
     @Override
     public String toString() {
-        String life = getLives().toString();
-        return getClass().getSimpleName() + " @" + location.x + "," + location.y + CONTAINS + life;
+        //String life = getLives().toString();
+    	
+    	String string = getClass().getSimpleName();
+    	
+    	string += " @" + location.x + "," + location.y;
+
+    	return string;
     }
-    
     
 }
