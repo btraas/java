@@ -37,13 +37,13 @@ import java.util.Random;
 public class NearbyDecision extends MoveDecision<Cell> {
   
     private static final int EVASIVE_BUFFER = Settings.getInt("evasivebufferDistance");
-    private static final Class<?>[] EVASIVE_TERRAIN = { DifficultTerrain.class };
+    private static final Terrain SAFE_TERRAIN = Terrain.DEFAULT;
   
     // Classes we want to get to
-    protected Class<?>[] positiveTypes;
+    protected Matter[] positiveTypes;
     
     // Classes we want to avoid
-    protected Class<?>[] negativeTypes;
+    protected Matter[] negativeTypes;
     
     /**
      * Creates a NearbyDecision when given a seed, options, and new constraints.
@@ -54,8 +54,8 @@ public class NearbyDecision extends MoveDecision<Cell> {
      * @param negativeTypes types to avoid
      */
     public NearbyDecision(final Random seed, final Cell[] options, 
-                          final Class<?>[] positiveTypes, 
-                          final Class<?>[] negativeTypes) {
+                          final Matter[] positiveTypes, 
+                          final Matter[] negativeTypes) {
         super(seed, options);
         this.positiveTypes = positiveTypes;
         this.negativeTypes = negativeTypes;
@@ -68,8 +68,8 @@ public class NearbyDecision extends MoveDecision<Cell> {
      * @param positiveTypes to filter by
      * @return a subset of only positive options
      */
-    public static Cell[] getPositiveOptions(final Cell[] options, 
-          final Class<?>[] positiveTypes) {
+    public static Cell[] optionsWith(final Cell[] options, 
+          final Matter[] positiveTypes) {
         ArrayList<Cell> newOptions = new ArrayList<Cell>();
         
         for (int i = 0; i < options.length; i++) {
@@ -96,7 +96,7 @@ public class NearbyDecision extends MoveDecision<Cell> {
      * @return a subset of only positive options for this Decision object
      */
     public Cell[] getPositiveOptions() {
-        return getPositiveOptions(options, positiveTypes);
+        return optionsWith(options, positiveTypes);
     }
     
     
@@ -107,15 +107,15 @@ public class NearbyDecision extends MoveDecision<Cell> {
      * @param negativeLifeTypes - types to avoid.
      * @return a subset of options - only the non-negative ones.
      */
-    public static Cell[] getNotNegativeOptions(final Cell[] options, 
-        final Class<?>[] negativeLifeTypes) {
+    public static Cell[] optionsWithout(final Cell[] options, 
+        final Matter[] negativeTypes) {
       
         ArrayList<Cell> newOptions = new ArrayList<Cell>();
       
         for (int i = 0; i < options.length; i++) {
             
-            if (options[i].has(negativeLifeTypes) ||
-            	options[i].is(negativeLifeTypes)) {
+            if (options[i].has(negativeTypes) ||
+            	options[i].is(negativeTypes)) {
             	continue;
             }
             // Else add this option.
@@ -133,7 +133,7 @@ public class NearbyDecision extends MoveDecision<Cell> {
      * @return a subset of options - only the non-negative ones.
      */
     public Cell[] getNotNegativeOptions() {
-        return getNotNegativeOptions(options, negativeTypes);
+        return optionsWithout(options, negativeTypes);
     }
     
     /**
@@ -144,9 +144,9 @@ public class NearbyDecision extends MoveDecision<Cell> {
      * @return a subset of options - only the non-negative ones.
      */
     public static Cell[] getNonNegativeOptions(final Cell[] options, 
-        final Class<?>[] negativeLifeTypes) {
+        final Matter[] negativeLifeTypes) {
       
-        return getNotNegativeOptions(options, negativeLifeTypes);
+        return optionsWithout(options, negativeLifeTypes);
     }
     
     /**
@@ -178,7 +178,7 @@ public class NearbyDecision extends MoveDecision<Cell> {
      * @return all options that are far enough away from enemies.
      */
     public static Cell[] getEvasiveOptions(final Cell[] options, 
-        final Class<?>[] negativeLifeTypes, int dist) {
+        final Matter[] negativeTypes, int dist) {
         
         ArrayList<Cell> newOptions = new ArrayList<Cell>();
         
@@ -196,7 +196,8 @@ public class NearbyDecision extends MoveDecision<Cell> {
             //System.out.println("Cells nearby: "+nearby.length);
             
             
-            Cell[] safeMoves = NearbyDecision.getNotNegativeOptions(nearby, negativeLifeTypes);
+            Cell[] safeMoves = NearbyDecision.optionsWithout(
+            		nearby, negativeTypes);
             
             //System.out.println("Safe Cells nearby: "+safeMovesInRange.length+"\n");
             
@@ -206,7 +207,7 @@ public class NearbyDecision extends MoveDecision<Cell> {
             // In other words: No negative options from here
             if (safeMoves.length == nearby.length) {
                 safe = true;
-            } else if (options[i].is(EVASIVE_TERRAIN)) {
+            } else if (options[i].getTerrain() != SAFE_TERRAIN) {
             	// Perform a check to see if the predators can move here.
             	
             	// Safe until proven otherwise.
@@ -214,10 +215,18 @@ public class NearbyDecision extends MoveDecision<Cell> {
             	
             	ArrayList<Cell> safeList = new ArrayList<Cell>(Arrays.asList(safeMoves));
             	
+            	// For each cell nearby this "potentially unsafe" cell
             	for (int j = 0; j < nearby.length; j++) {
             		// If this nearby Cell not in the safe list
             		if (!safeList.contains(nearby[j])) {
-            			ArrayList<Life> predatorsHere = nearby[j].getLives(negativeLifeTypes);
+            			
+            			// If this Cell itself is unsafe...
+            			if (nearby[j].is(negativeTypes) 
+            					&& !nearby[j].has(negativeTypes)) {
+            				continue;
+            			}
+            			
+            			ArrayList<Life> predatorsHere = nearby[j].getLives(negativeTypes);
             			
             			if (predatorsHere.size() == 0) {
             				throw new RuntimeException(
@@ -258,7 +267,7 @@ public class NearbyDecision extends MoveDecision<Cell> {
     public Cell[] reduceDecisions() {
         
         // Get non-negative options
-        Cell[] nonNegative = getNotNegativeOptions(options, negativeTypes);
+        Cell[] nonNegative = optionsWithout(options, negativeTypes);
         
         //System.out.println(" nonNegative: "+Arrays.asList(nonNegative));
         
@@ -287,7 +296,7 @@ public class NearbyDecision extends MoveDecision<Cell> {
         this.options = evasive;
         
         // Get positive options
-        Cell[] positive = getPositiveOptions(options, positiveTypes);
+        Cell[] positive = optionsWith(options, positiveTypes);
         
         //System.out.println(" positive: "+Arrays.asList(positive));
         

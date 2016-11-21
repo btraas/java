@@ -18,7 +18,7 @@ import java.util.List;
  * @author Brayden Traas
  * @version 2016-10-22
  */
-public abstract class Cell implements Terrain {
+public abstract class Cell {
 
 
 	
@@ -46,11 +46,13 @@ public abstract class Cell implements Terrain {
     
     protected ArrayList<Life> occupiers = new ArrayList<Life>();
  
-    protected Color lifeColor = getEmptyColor();
+    protected final Terrain terrain;
+    //protected Color lifeColor = getEmptyColor();
     
-    public Cell(final World world, int row, int column) {
+    public Cell(final World world, int column, int row) {
     	this.world = world;
-    	location = new Point(row, column);
+    	location = new Point(column, row);
+    	this.terrain = Creator.newTerrain(world.getSeed());
     	
     }
     
@@ -60,6 +62,7 @@ public abstract class Cell implements Terrain {
      * @return the Shape class of this Cell.
      */
     public abstract Class<?> getShape();
+    
     
     /**
      * Calculates the distance between this Cell and a given Cell.
@@ -78,11 +81,19 @@ public abstract class Cell implements Terrain {
     }
     
     /**
+     * Gets the terrain of this Cell. 
+     * @return the Terrain 
+     */
+    public Terrain getTerrain() {
+    	return terrain;
+    }
+    
+    /**
      * Returns the EMPTY_COLOR variable.
      * @return Color for backgrounds.
      */
     public Color getEmptyColor() {
-    	return EMPTY_COLOR;
+    	return terrain.getColor();
     }
     
     
@@ -131,7 +142,7 @@ public abstract class Cell implements Terrain {
         return cells.toArray(new Cell[cells.size()]);
     }
     
-    private Cell[] getAdjacentCellsWithAndWithout(final Class<?>[] mustHaveOrBe, final Class<?>[] mustNotHaveOrBe) {
+    private Cell[] getAdjacentCellsWithAndWithout(final Matter[] mustHaveOrBe, final Matter[] mustNotHaveOrBe) {
         Cell[] all = getAdjacentCells();
         ArrayList<Cell> valid = new ArrayList<Cell>();
         
@@ -140,7 +151,8 @@ public abstract class Cell implements Terrain {
         
         for (int i=0; i<all.length; i++) {
         	
-            if (all[i].hasOrIs(mustHaveOrBe) && !all[i].hasOrIs(mustNotHaveOrBe)) {
+            if ((mustHaveOrBe == null || all[i].hasOrIs(mustHaveOrBe)) 
+            		&& !all[i].hasOrIs(mustNotHaveOrBe)) {
             	valid.add(all[i]);
             }
             
@@ -155,9 +167,9 @@ public abstract class Cell implements Terrain {
      * Gets the adjacent cells to this Cell
      * @return an array of Cells that are adjacent and of the given types.
      */
-    public Cell[] getAdjacentCellsWithout(final Class<?>[] invalidTypes) {
+    public Cell[] getAdjacentCellsWithout(final Matter[] invalidTypes) {
 
-    	return getAdjacentCellsWithAndWithout(new Class[] {Cell.class}, invalidTypes);
+    	return getAdjacentCellsWithAndWithout(null, invalidTypes);
         
     }
     
@@ -165,7 +177,7 @@ public abstract class Cell implements Terrain {
      * Gets the adjacent cells to this Cell
      * @return an array of Cells that are adjacent and of the given types.
      */
-    public Cell[] getAdjacentCellsWith(final Class<?>[] validTypes) {
+    public Cell[] getAdjacentCellsWith(final Matter[] validTypes) {
         
     	return getAdjacentCellsWithAndWithout(validTypes, null);
         
@@ -189,18 +201,22 @@ public abstract class Cell implements Terrain {
     
     /**
      * Gets the matching lives in this Cell.
+     * Allow all Matter so we can pass in a larger set to check.
      * @return the occupiers that match.
      */
-    public final ArrayList<Life> getLives(final Class<?>[] validTypes) {
+    public final ArrayList<Life> getLives(final Matter[] validTypes) {
     	ArrayList<Life> newLives = new ArrayList<Life>();
     	if (occupiers == null || occupiers.size() == 0) {
     		return newLives;
     	}
     	for (Life life : occupiers) {
+    		if (life == null) {
+    			continue;
+    		}
     		for (int i = 0; i < validTypes.length; i++) {
     			// Check if this Life is this valid type, and
     			//  add if we haven't already.
-    			if (validTypes[i].isInstance(life) 
+    			if (validTypes[i] == life.type
     				&& !newLives.contains(life)) {
     				newLives.add(life);
     			}
@@ -242,18 +258,21 @@ public abstract class Cell implements Terrain {
      * @param exception to not select
      * @return Life of this type found.
      */
-    public final Life getLife(final Class<?> type, final Class<?>[] classException, final Object objectException) {
+    public final Life getLife(final Matter type, 
+    		final Matter[] classException, 
+    		final Object objectException) {
     	
     	for (Life occupier : occupiers) {
     		
     		// If we have one of the desired types.
-    		if (type.isInstance(occupier) &&  occupier != objectException) {
+    		if (occupier != null && type == occupier.type 
+    			&&  occupier != objectException) {
     			if (classException == null) {
     				return occupier;
     			}
     			boolean valid = true;
     			for (int i = 0; i < classException.length; i++) {
-    				if(classException[i].isInstance(occupier)) {
+    				if(classException[i] == occupier.type) {
     					valid = false;
     				}	
     			}
@@ -272,7 +291,7 @@ public abstract class Cell implements Terrain {
      * @param exception to not select
      * @return Life of this type found.
      */
-    public final Life getLife(final Class<?>[] types, final Class<?>[] classException, final Object objectException) {
+    public final Life getLife(final Matter[] types, final Matter[] classException, final Object objectException) {
     	for (int i = 0; i < types.length; i++) {
     		Life thisType = getLife(types[i], classException, objectException);
     		if (thisType != null) {
@@ -288,7 +307,7 @@ public abstract class Cell implements Terrain {
      * @param type to select
      * @return Life of this type found.
      */
-    public final Life getLife(final Class<?> type) {
+    public final Life getLife(final Matter type) {
     	// boolean is a dummy class...
     	return getLife(type, null, null);
     }
@@ -299,7 +318,7 @@ public abstract class Cell implements Terrain {
      * @param types to select
      * @return Life of this type found.
      */
-    public final Life getLife(final Class<?>[] types) {
+    public final Life getLife(final Matter[] types) {
     	return getLife(types, null, null);
     }
     
@@ -309,7 +328,7 @@ public abstract class Cell implements Terrain {
      * @param exception to not want
      * @return true if it has this, otherwise false.
      */
-    public final boolean has(final Class<?> type, final Class<?>[] classException, final Object objectException) {
+    public final boolean has(final Matter type, final Matter[] classException, final Object objectException) {
     	return getLife(type, classException, objectException) != null;
     }
     
@@ -321,7 +340,8 @@ public abstract class Cell implements Terrain {
      * @param exception to not want
      * @return true if it has this, otherwise false.
      */
-    public final boolean has(final Class<?>[] types, final Class<?>[] exceptionClass, final Object exceptionObject ) {
+    public final boolean has(final Matter[] types, 
+    		final Matter[] exceptionClass, final Object exceptionObject ) {
     	if (types == null) {
     		return false;
     	}
@@ -341,7 +361,7 @@ public abstract class Cell implements Terrain {
      * @param exception to not want
      * @return true if it has this, otherwise false.
      */
-    public final boolean has(final Class<?> type) {
+    public final boolean has(final Matter type) {
     	return getLife(type, null, null) != null;
     }
     
@@ -352,7 +372,7 @@ public abstract class Cell implements Terrain {
      * @param exception to not want (can be null)
      * @return true if it has this, otherwise false.
      */
-    public final boolean has(final Class<?>[] types) {
+    public final boolean has(final Matter[] types) {
     	return has(types, null, null);
     }
     
@@ -362,12 +382,12 @@ public abstract class Cell implements Terrain {
      * @param types to check for.
      * @return true if this is one of the given types.
      */
-    public final boolean is(final Class<?>[] types) {
+    public final boolean is(final Matter[] types) {
     	if (types == null) {
     		return false;
     	}
     	for (int i = 0; i < types.length; i++) {
-    		if (types[i].isInstance(this)) {
+    		if (types[i] == terrain) {
     			return true;
     		}
     	}
@@ -379,7 +399,7 @@ public abstract class Cell implements Terrain {
      * @param types to check.
      * @return true if this is or has one of these types.
      */
-    public final boolean hasOrIs(final Class<?>[] types) {
+    public final boolean hasOrIs(final Matter[] types) {
     	if (types == null) {
     		return false;
     	}
@@ -494,17 +514,13 @@ public abstract class Cell implements Terrain {
             return "" + supply;
           
         } else if (World.SHOW_MOVES 
-            && occupier != null && occupier instanceof Moveable) {
-
-            Moveable<?> mover = (Moveable<?>)occupier;
-          
-            // Get types we can move into.
-            Class<?>[] types = mover.getInvalidMoveToTypes();
+            && occupier != null && occupier.moveable()) {
 
             
             // Get the number of possible moves.
-            int moves = mover.getMoveToPossibilities(
-                types, mover.getMoveMin(), mover.getMoveMax()).length;
+            int moves = occupier.getMoveToPossibilities(
+                occupier.type.move.min, 
+                occupier.type.move.max).length;
             return "" + moves;
         
         } else if (World.SHOW_COORDINATES) {

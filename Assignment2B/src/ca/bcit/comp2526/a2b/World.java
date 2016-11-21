@@ -3,7 +3,6 @@ package ca.bcit.comp2526.a2b;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
@@ -45,6 +44,10 @@ public final class World {
      */
     public static final boolean VISIBLE_LINES = Settings.getBoolean("visibleLines");
     
+    /**
+     * True if this is a hex grid.
+     */
+    public static final boolean HEX = Settings.get("gridType").equalsIgnoreCase("hex");
     
     private final long seed;
     private final Random randomSeed;
@@ -60,7 +63,7 @@ public final class World {
      * @param rows to instantiate with.
      * @param columns to instantiate with.
      */
-    public World(int rows, int columns) {
+    public World(int columns, int rows) {
       
         double seed = Settings.getDouble("seed");
         seed = seed > 0 ? seed : System.currentTimeMillis();
@@ -80,7 +83,7 @@ public final class World {
       
         // Cell objects now created later; 
         // the World object doesn't know the type of the Cell (Hexagon or Square)
-        cells = new Cell[rows][columns];
+        cells = new Cell[columns][rows];
        
        
     }
@@ -91,8 +94,8 @@ public final class World {
      */
     public ArrayList<Cell> getCells() {
     	ArrayList<Cell> cells = new ArrayList<Cell>();
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
+        for (int i = 0; i < columns; i++) {
+            for (int j = 0; j < rows; j++) {
               
                 if (this.cells[i][j] != null) {
                     cells.add(this.cells[i][j]);
@@ -108,18 +111,19 @@ public final class World {
      */
     public ArrayList<Life> getLives() {
     	ArrayList<Life> lives = new ArrayList<Life>();
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
+        for (int i = 0; i < columns; i++) {
+            for (int j = 0; j < rows; j++) {
               
             	/*
-            	 *  getLife(Life.class) denotes:
+            	 *  getLife(LifeType.values()) denotes:
             	 * 	 Get any life that:
             	 *   	: is-a Life
             	 *   
             	 *   Ergo, any life.
             	 */
             	
-                   if (cells[i][j] != null && cells[i][j].getLife(Life.class) != null) {
+                   if (cells[i][j] != null 
+                		   && cells[i][j].getLife(LifeType.values()) != null) {
                     lives.addAll(cells[i][j].getLives());
                 }
             }
@@ -174,11 +178,13 @@ public final class World {
 
     	int lives = 0;
     	
-    	for (int i = 0; i < rows; i++) {
-    		for (int j = 0; j < columns; j++) {
-    			Life l = cells[j][i].getLife(Life.class);
+    	for (int i = 0; i < columns; i++) {
+    		for (int j = 0; j < rows; j++) {
+    			
+    			// if(cells[i][j] == null) continue;
+    			Life l = cells[i][j].getLife(LifeType.values());
     			if (l != null)
-    				lives += cells[j][i].getLives().size();
+    				lives += cells[i][j].getLives().size();
     				//System.out.print(cells[j][i].getLives().size()+",");
     		}
     		//System.out.println();
@@ -196,7 +202,7 @@ public final class World {
      * @param column the column this Cell is found in
      * @return the desired Cell object
      */
-    public Cell createCellAt(final Cell newCell, int row, int column) {
+    public Cell createCellAt(final Cell newCell, int column, int row) {
       
         // Return null if this row/column is outside bounds.
         if (row < 0 || column < 0) {
@@ -205,10 +211,10 @@ public final class World {
         if (row >= rows || column >= columns) {
             return null;
         }
-        cells[row][column] = newCell; // new Cell(this, row, column);
-        cells[row][column].addLife(Creator.createLife(cells[row][column], randomSeed));
+        cells[column][row] = newCell; // new Cell(this, column, row);
+        cells[column][row].addLife(Creator.createLife(cells[column][row], randomSeed));
 
-        return cells[row][column];
+        return cells[column][row];
     }
     
     /**
@@ -218,7 +224,7 @@ public final class World {
      * @param column the column this Cell is found in
      * @return the desired Cell object
      */
-    public Cell getCellAt(int row, int column) {
+    public Cell getCellAt(int column, int row) {
       
         // Return null if this row/column is outside bounds.
         if (row < 0 || column < 0) {
@@ -228,7 +234,7 @@ public final class World {
             return null;
         }
         
-        return cells[row][column];
+        return cells[column][row];
     }
     
     /**

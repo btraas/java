@@ -40,33 +40,39 @@ public class Creator {
     	int omnivorePct  = omnivoreChance  + carnivorePct;
     	
     	Life life = null;
+    	LifeTools.Type type = null;
     	int percent = getNextPercent(seed);
     	if (percent <= plantPct) {
-            life = new Plant(loc);
+            type = LifeTools.Type.PLANT;
         } else if (percent <= herbivorePct) {
-            life = new Herbivore(loc);
+            type = LifeTools.Type.HERBIVORE;
         } else if (percent <= carnivorePct) {
-            life = new Carnivore(loc);
+            type = LifeTools.Type.CARNIVORE;
         } else if (percent <= omnivorePct) {
-        	life = new Omnivore(loc);
+        	type = LifeTools.Type.OMNIVORE;
         }
       
+    	if (type != null) {
+    		life = new Life(type, loc);
+    	}
+    	
     	// If this new life is not compatible with this cell
     	// or its contents.
-    	if (life != null && 
-    			(
-    			loc.has(life.getIncompatibleTypes()) 
-    			|| loc.is(life.getIncompatibleTypes()))) {
+    	if (life != null 
+    			&& loc.hasOrIs(life.getIncompatibleTypes())) {
     		return null;
     	}
         
         return life;
     }
     
-    public static Cell createCell(final Cell origin, final Random seed) {
-    	if (origin == null) {
-    		return null;
-    	}
+    /**
+     * Create a new Terrain given the seed.
+     * 
+     * @param seed
+     * @return a Terrain enum.
+     */
+    public static Terrain newTerrain(final Random seed) {
     	
     	int waterPct = waterChance;
     	
@@ -74,14 +80,10 @@ public class Creator {
     	
     	if (percent <= waterPct) {
     	
-    		if (origin instanceof HexCell) {
-    			return new WaterHexCell((HexCell)origin);
-    		} else if (origin instanceof SquareCell) {
-    			return new WaterSquareCell((SquareCell)origin);
-    		}
+    		return Terrain.WATER;
     	}
     	
-    	return origin;
+    	return Terrain.DEFAULT;
     }
     
   

@@ -24,8 +24,8 @@ public class SquareCell extends Cell {
      * @param row this Cell is found in
      * @param column this cell is found in
      */
-    public SquareCell(final World world, int row, int column) {
-        super(world, row, column);
+    public SquareCell(final World world, int column, int row) {
+        super(world, column, row);
         init();
     }
   

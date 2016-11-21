@@ -16,7 +16,7 @@ public class DistanceDecision extends NearbyDecision {
 
     private static final int MAX_SENSE_DISTANCE = Settings.getInt("maxSenseDistance");
   
-    private Cell current;
+    private Life self;
     private int maxDistance;
   
     /**
@@ -30,11 +30,11 @@ public class DistanceDecision extends NearbyDecision {
      * @param maxDistance to sense food / predators
      */
     public DistanceDecision(final Random seed, final Cell[] options, 
-        final Class<?>[] positiveLifeTypes,
-        final Class<?>[] negativeLifeTypes, final Cell current, int maxDistance) {
+        final Matter[] positiveTypes,
+        final Matter[] negativeTypes, final Life self, int maxDistance) {
         
-        super(seed, options, positiveLifeTypes, negativeLifeTypes);
-        this.current = current;
+        super(seed, options, positiveTypes, negativeTypes);
+        this.self = self;
         this.maxDistance = maxDistance;
         
         if (maxDistance > MAX_SENSE_DISTANCE) {
@@ -56,9 +56,8 @@ public class DistanceDecision extends NearbyDecision {
     
         for (int distance = 2; distance <= maxDistance; distance++) {
             // check from x - x (ring around this cell) for a goal.
-            outlookOptions = getNonNegativeOptions(
-            		current.getNearbyCells(distance, distance), 
-            		new Class<?>[] {current.getClass()});
+            outlookOptions = self.getMoveToPossibilities(
+            		distance, distance);
             
             outlook = new NearbyFoodDecision(seed, outlookOptions, positiveTypes);
       
@@ -95,7 +94,7 @@ public class DistanceDecision extends NearbyDecision {
         
         
         // If there's a positive option this turn, choose that.
-        if (getPositiveOptions().length > 0 || current == null) {
+        if (getPositiveOptions().length > 0 || self == null) {
             
             return super.decide(); 
         }
@@ -106,7 +105,7 @@ public class DistanceDecision extends NearbyDecision {
         
         //System.out.println("\nThis is a: "+currentLife.getClass().getSimpleName());
         
-        if (maxDistance < 2 || current.has(Moveable.class) ) {
+        if (maxDistance < 2) {
             return super.decide();
         }
         

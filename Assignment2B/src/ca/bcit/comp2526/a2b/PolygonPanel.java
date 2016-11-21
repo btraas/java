@@ -127,9 +127,12 @@ public abstract class PolygonPanel extends JPanel {
 	            int posX = location.x + (apothem / 2);
 				int posY = location.y + (apothem / 2); 
 	            
-	            if (cell instanceof Terrain) {
+				// Difficult Terrain
+	            if (cell.getTerrain() != null) {
 	            	graphics.setClip(poly);
-	            	((Terrain) cell).drawImage(graphics, location.x, location.y, CELL_RADIUS*2, CELL_RADIUS*2);
+	            	cell.getTerrain().drawImage(
+	            			graphics, location.x, location.y, 
+	            			CELL_RADIUS*2, CELL_RADIUS*2);
 	            	graphics.setClip(null);
 	            }
 	

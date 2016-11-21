@@ -39,9 +39,7 @@ public class HexPanel extends PolygonPanel {
         
         for (int i = 0; i < width; i++) {
         	for (int j = 0; j < height; j++) {
-        		world.createCellAt(Creator.createCell(
-        				new HexCell(world, i, j),
-        				world.getSeed()), i, j);
+        		world.createCellAt(new HexCell(world, i, j), i, j);
         	}
         }
         

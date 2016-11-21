@@ -25,17 +25,16 @@ public interface Moveable<DestinationT> {
      *  Get Life types we can't move into.
      * @return an array of Class objects that this type can not move "into".
      */
-    public Class<?>[] getInvalidMoveToTypes();
+    public Matter[] getInvalidMoveToTypes();
     
     /**
      * Get possibilities to move to.
      * 
-     * @param types to move to
      * @param min distance
      * @param max distance
      * @return array of Destination options.
      */
-    public DestinationT[] getMoveToPossibilities(final Class<?>[] types, int min, int max);
+    public DestinationT[] getMoveToPossibilities(int min, int max);
     
     /**
      * Get minimum distance to travel.

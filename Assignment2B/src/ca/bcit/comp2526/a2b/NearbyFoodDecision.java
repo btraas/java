@@ -21,8 +21,8 @@ import java.util.Random;
 public class NearbyFoodDecision extends NearbyDecision {
 
     public NearbyFoodDecision(final Random seed, final Cell[] options, 
-          final Class<?>[] positiveLifeTypes) {
-        super(seed, options, positiveLifeTypes, null);
+          final Matter[] positiveTypes) {
+        super(seed, options, positiveTypes, null);
     }
   
   
@@ -38,7 +38,7 @@ public class NearbyFoodDecision extends NearbyDecision {
       
         
         // Get positive options. Defined in NearbyDecision.java
-        Cell[] positive = getPositiveOptions(options, positiveTypes);
+        Cell[] positive = optionsWith(options, positiveTypes);
         
         // If no positive was found, let parent decide from previously reduced subset.
         if (positive.length == 0) {
