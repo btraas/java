@@ -1,6 +1,7 @@
 package ca.bcit.comp2526.a2b;
 
 
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -23,6 +24,10 @@ public class Creator {
     
     private static final int waterChance = Settings.getInt("WaterChance");
 
+    // Allow this package to force outcome once.
+    protected static LifeTools.Type forceLifeType = null;
+    protected static Terrain forceTerrain = null;
+    
     private Creator() {} // Unable to instantiate
 
     /**
@@ -52,8 +57,17 @@ public class Creator {
         	type = LifeTools.Type.OMNIVORE;
         }
       
-    	if (type != null) {
+    	if (forceLifeType != null) {
+    		type = forceLifeType;
+    		forceLifeType = null;
+    	}
+    	
+    	if (type != null && type != LifeTools.Type.NULL) {
     		life = new Life(type, loc);
+    	}
+    	
+    	if (World.DEBUG && life != null && life.type == LifeType.CARNIVORE) {
+    		System.out.println("Checking if Cell "+loc+" has incompatible types ("+Arrays.asList(life.getIncompatibleTypes())+")...");
     	}
     	
     	// If this new life is not compatible with this cell
@@ -75,15 +89,21 @@ public class Creator {
     public static Terrain newTerrain(final Random seed) {
     	
     	int waterPct = waterChance;
-    	
     	int percent = getNextPercent(seed);
+    	
+    	Terrain chosen = Terrain.DEFAULT;
     	
     	if (percent <= waterPct) {
     	
-    		return Terrain.WATER;
+    		chosen = Terrain.WATER;
     	}
     	
-    	return Terrain.DEFAULT;
+    	if (forceTerrain != null) {
+    		chosen = forceTerrain;
+    	}
+    	
+    	forceTerrain = null;
+    	return chosen;
     }
     
   

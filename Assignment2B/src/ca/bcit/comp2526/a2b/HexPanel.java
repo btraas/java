@@ -15,16 +15,9 @@ import java.awt.Polygon;
  *
  */
 @SuppressWarnings("serial")
-public class HexPanel extends PolygonPanel {
+public class HexPanel extends PolygonPanel<HexCell> {
     
-
-    //protected int hexOffset; // Distance from left horizontal vertex to vertical axis
-    // protected int hexApotheme; // Apotheme of the hexagon = radius of inscribed circumference
-    //protected int hexRectWidth; // Width of the circumscribed rectangle
-    //protected int hexRectHeight; // Height of the circumscribed rectangle
-    //protected int hexGridWidth;  // hexOffset + hexSide (b + s)
-  
-    public HexPanel(World world) {
+    public HexPanel(final World<HexCell> world) {
         super(world);
         int hexSide = CELL_RADIUS;
     	apothem = (int) (hexSide * Math.cos(Math.PI / 6));
@@ -39,7 +32,7 @@ public class HexPanel extends PolygonPanel {
         
         for (int i = 0; i < width; i++) {
         	for (int j = 0; j < height; j++) {
-        		world.createCellAt(new HexCell(world, i, j), i, j);
+        		world.addCell(new HexCell(world, i, j));
         	}
         }
         
@@ -54,8 +47,12 @@ public class HexPanel extends PolygonPanel {
         return new Dimension(panelWidth, panelHeight);
     }
 
-    
-    public Polygon buildPolygon(Cell cell) {
+    @Override
+    public Polygon buildPolygon(final Cell cell) {
+    	if (!(cell instanceof HexCell)) {
+    		return null;
+    	}
+    	
         Polygon hex = new Polygon();
         Point origin = tileToPixel(cell.location.x, cell.location.y);
         hex.addPoint(origin.x + offset, origin.y);
@@ -79,7 +76,7 @@ public class HexPanel extends PolygonPanel {
         return pixel;
     }
 
-    public boolean tileIsWithinBoard(Point coordinates) {
+    public boolean tileIsWithinBoard(final Point coordinates) {
         int column = coordinates.x;
         int row = coordinates.y;
         return (column >= 0 && column < width) && (row >= 0 && row < height);

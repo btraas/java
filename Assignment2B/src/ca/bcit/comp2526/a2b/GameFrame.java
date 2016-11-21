@@ -15,13 +15,13 @@ public class GameFrame extends JFrame {
   
     
     private TurnListener turnListener = new TurnListener(this);
-    protected final World world;
+    protected final World<? extends Cell> world;
 
     /**
      * Constructs an object of type GameFrame.
      * @param world a World for this Frame
      */
-    public GameFrame(final World world) {
+    public GameFrame(final World<? extends Cell> world) {
 
     	this.world = world;
         setBackground(Cell.EMPTY_COLOR);
@@ -43,7 +43,7 @@ public class GameFrame extends JFrame {
      * Gets the world object.
      * @return the world.
      */
-    protected final World getWorld() {
+    protected final World<? extends Cell> getWorld() {
         return world;
     }
     

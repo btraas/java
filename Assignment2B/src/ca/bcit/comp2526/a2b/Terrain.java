@@ -34,13 +34,13 @@ public enum Terrain implements Edible {
 		return color;
 	}
 
-	private Terrain(Terrain in) {
+	private Terrain(final Terrain in) {
     	this(in.identifier, in.color, in.image, in.difficult);
     }
     
     // Providing a constructor for this Enum. Terrain.Water runs this constructor
     // (Terrain('water')) which sets the character identifier.
-    private Terrain(String identifier, Color color, Image image, boolean difficult) {
+    private Terrain(final String identifier, final Color color, final Image image, boolean difficult) {
         this.identifier = identifier;
         this.color = color;
         this.image = image;
@@ -110,7 +110,7 @@ public enum Terrain implements Edible {
      * @param sizeX of the image
      * @param sizeY of the image
      */
-    public void drawImage(Graphics graphics, int offsetX, int offsetY, int sizeX, int sizeY) {
+    public void drawImage(final Graphics graphics, int offsetX, int offsetY, int sizeX, int sizeY) {
 		
 		graphics.drawImage(image, offsetX, offsetY, sizeX, sizeY, null);
 		

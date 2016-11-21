@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -41,7 +42,7 @@ public abstract class Cell {
     
     //protected int row;
     //protected int column;
-    protected World world;
+    protected World<? extends Cell> world;
     protected final Point location;
     
     protected ArrayList<Life> occupiers = new ArrayList<Life>();
@@ -49,7 +50,7 @@ public abstract class Cell {
     protected final Terrain terrain;
     //protected Color lifeColor = getEmptyColor();
     
-    public Cell(final World world, int column, int row) {
+    public Cell(final World<? extends Cell> world, int column, int row) {
     	this.world = world;
     	location = new Point(column, row);
     	this.terrain = Creator.newTerrain(world.getSeed());
@@ -61,7 +62,7 @@ public abstract class Cell {
      * Eg: WaterHexCell and HexCell both return HexCell.class
      * @return the Shape class of this Cell.
      */
-    public abstract Class<?> getShape();
+    public abstract Class<? extends Cell> getShape();
     
     
     /**
@@ -72,6 +73,8 @@ public abstract class Cell {
     public abstract double distance(final Cell other);
     
   
+    public abstract Cell[][] get2DArray(int columns, int rows);
+    
     /**
      * 
      */
@@ -400,8 +403,15 @@ public abstract class Cell {
      * @return true if this is or has one of these types.
      */
     public final boolean hasOrIs(final Matter[] types) {
+    	
     	if (types == null) {
+    		if (World.DEBUG && terrain == Terrain.WATER) {
+    			System.out.println(" CELL "+this+" hasOrIs(null)?... returning false");
+    		}
     		return false;
+    	}
+    	if (World.DEBUG && terrain == Terrain.WATER) {
+    		System.out.println(" CELL "+this+" hasOrIs("+Arrays.asList(types)+")? "+(this.has(types) || this.is(types)));
     	}
     	return (this.has(types) || this.is(types));
     }
@@ -454,7 +464,7 @@ public abstract class Cell {
      * Gets the World this Cell resides in.
      * @return the World object reference.
      */
-    public World getWorld() {
+    public World<? extends Cell> getWorld() {
         return world;
     }
     
@@ -583,7 +593,7 @@ public abstract class Cell {
     public String toString() {
         //String life = getLives().toString();
     	
-    	String string = getClass().getSimpleName();
+    	String string = "(" + terrain.name() + ") ";
     	
     	string += " @" + location.x + "," + location.y;
 

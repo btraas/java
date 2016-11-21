@@ -66,26 +66,41 @@ public final class Main {
     	
     }
     
+    
+    
+    
+    /**
+     * Creates a world.
+     * @throws IOException
+     */
     public static void createWorld() throws IOException  {
-    	final World world; // You need a World class
-        final GameFrame frame; 
+    	World<? extends Cell> world; 
+    	final GameFrame frame; 
 
         // Now loaded at Main Class initialization, before main() method.
         //Settings.load();
         
-        world = new World(Settings.getInt(WORLD_SIZE_X), Settings.getInt(WORLD_SIZE_Y));
-        world.init();
         
+        
+        int sizeX = Settings.getInt(WORLD_SIZE_X);
+        int sizeY = Settings.getInt(WORLD_SIZE_Y);
         
         // Load the grid type. Either Square or Hex.
         
         JPanel panel;
         String gridType = Settings.get(GRID_TYPE);
         if (gridType.equalsIgnoreCase(HEX_GRID)) {
-            panel = new HexPanel(world);
+        	
+        	world = new World<HexCell>(HexCell.class, sizeX, sizeY);
+			panel = new HexPanel(new World<HexCell>(HexCell.class, world));
+        	
         } else {
-            panel = new SquarePanel(world);
+        	world = new World<SquareCell>(SquareCell.class, sizeX, sizeY);
+            panel = new SquarePanel(new World<SquareCell>(SquareCell.class, world));
         }
+        
+        world.init();
+        
         frame = new GameFrame(world);
         frame.setTitle("Assignment 2B");
         frame.add(panel);

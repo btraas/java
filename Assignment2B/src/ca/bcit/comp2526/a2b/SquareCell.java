@@ -24,14 +24,15 @@ public class SquareCell extends Cell {
      * @param row this Cell is found in
      * @param column this cell is found in
      */
-    public SquareCell(final World world, int column, int row) {
+    public SquareCell(final World<SquareCell> world, int column, int row) {
         super(world, column, row);
         init();
     }
   
+    
  
     @Override
-    public Class<?> getShape() {
+    public Class<SquareCell> getShape() {
     	return SquareCell.class;
     }
     
@@ -46,6 +47,13 @@ public class SquareCell extends Cell {
     public double distance(final Cell other) {
         return this.getLocation().distance(other.getLocation());
     }
+
+
+
+	@Override
+	public SquareCell[][] get2DArray(int columns, int rows) {
+		return new SquareCell[columns][rows];
+	}
  
 
 

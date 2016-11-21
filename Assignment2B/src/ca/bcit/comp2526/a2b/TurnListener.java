@@ -58,7 +58,7 @@ public final class TurnListener extends MouseAdapter implements MouseListener, K
 				final TurnListener parent = this;
 				new Thread(new Runnable() {
 					public void run() {
-						World world = parent.worldFrame.getWorld();
+						World<?> world = parent.worldFrame.getWorld();
 						while (RUNNING && world.getLives().size() > 0) {
 							parent.worldFrame.takeTurn();
 							try {

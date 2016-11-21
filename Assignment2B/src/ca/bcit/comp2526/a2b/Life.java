@@ -335,14 +335,6 @@ public final class Life implements Moveable<Cell> {
     }
     
    
-    public static String typesToString(Class<?>[] types) {
-    	String string = "";
-    	for (int i = 0; i < types.length; i++) {
-    		string += types[i].getSimpleName() + ", ";
-    	}
-    	string = string.substring(0, (string.length())-2);
-    	return string;
-    }
     
     /**
      * Gets the amount of life left.
@@ -384,7 +376,7 @@ public final class Life implements Moveable<Cell> {
             return;
         }
       
-        World thisWorld = this.getCell().getWorld();
+        World<?> thisWorld = this.getCell().getWorld();
         Random seed = thisWorld.getSeed();
         
         //MoveDecision decision = this.getMoveDecision(seed, getMoveOptions());

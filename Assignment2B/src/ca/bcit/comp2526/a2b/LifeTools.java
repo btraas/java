@@ -3,7 +3,7 @@ package ca.bcit.comp2526.a2b;
 public abstract class LifeTools {
 
 	protected enum Type implements Edible {
-		PLANT, HERBIVORE, OMNIVORE, CARNIVORE;
+		PLANT, HERBIVORE, OMNIVORE, CARNIVORE, NULL;
 		
 		
 	}
@@ -14,6 +14,9 @@ public abstract class LifeTools {
 	}
 	
 	protected static LifeType getLifeType(LifeTools.Type type) {
+		if (type == null) {
+			return null;
+		}
 		return LifeType.valueOf(type.name());
 	}
 	

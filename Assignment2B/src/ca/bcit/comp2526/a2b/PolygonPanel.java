@@ -21,7 +21,7 @@ import javax.swing.JPanel;
  * 
  */
 @SuppressWarnings("serial")
-public abstract class PolygonPanel extends JPanel {
+public abstract class PolygonPanel<CellT> extends JPanel {
 
 	private static final Polygon ARROW_TEMPLATE = new Polygon(
 			new int[] { 10, 20, 20, 25, 15, 5, 10 },
@@ -30,7 +30,7 @@ public abstract class PolygonPanel extends JPanel {
 	
 	protected static final int CELL_RADIUS = Settings.getInt("cellRadius");
 
-    protected World world;
+    protected World<? extends Cell> world;
 	
 	protected int width; // Number of columns
     protected int height; // Number of rows
@@ -44,7 +44,7 @@ public abstract class PolygonPanel extends JPanel {
     private boolean painting = false;
     
     
-	public PolygonPanel(final World world) {
+	public PolygonPanel(final World<? extends Cell> world) {
 		this.world = world;
     	
     	this.width = world.getColumnCount();
@@ -69,7 +69,13 @@ public abstract class PolygonPanel extends JPanel {
 		return arrow;
 	}
 	
-    private final double angle(final Cell self, final Cell other) {
+	/*
+	 * Ensure it's of the parameterized type
+	 */
+    private final double angle(final Cell selfOrig, final Cell otherOrig) {
+    	
+    	final Cell self = (Cell)selfOrig;
+    	final Cell other = (Cell)otherOrig;
     	
     	if (self == null || other == null
     		|| !other.getShape().equals(self.getShape())
@@ -115,6 +121,7 @@ public abstract class PolygonPanel extends JPanel {
 	        
 	        // For each Cell
 	        for (Cell cell : world.getCells()) {
+	        	
 	        	
 	            Polygon poly = buildPolygon(cell);
 	        	

@@ -7,13 +7,15 @@ import java.util.Collections;
 import java.util.Random;
 
 /**
- * World to contain cells.
+ * World to contain a specific type of Cells.
  * Also holds the seed that all Classes refer to.
+ * Parameterized type ensures that we can only add 
+ *  the specified type of Cell to the world.
  * 
  * @author Brayden Traas
  * @version 2016-10-22
  */
-public final class World {
+public final class World<CellT extends Cell> {
 
 	private static long lastTime;
 	//private static int lastTotal;
@@ -49,6 +51,7 @@ public final class World {
      */
     public static final boolean HEX = Settings.get("gridType").equalsIgnoreCase("hex");
     
+    private Class<CellT> cellType;
     private final long seed;
     private final Random randomSeed;
     private int rows;
@@ -63,8 +66,9 @@ public final class World {
      * @param rows to instantiate with.
      * @param columns to instantiate with.
      */
-    public World(int columns, int rows) {
-      
+    public World(final Class<CellT> cellType, int columns, int rows) {
+
+    	this.cellType = cellType;
         double seed = Settings.getDouble("seed");
         seed = seed > 0 ? seed : System.currentTimeMillis();
       
@@ -76,6 +80,21 @@ public final class World {
         this.columns = columns;
     }
     
+    /** 
+     * Creates a World. If a seed is loaded from settings, use it.
+     *  Otherwise, a random seed is used (based on current time).
+     * 
+     * @param World to copy from. Doesn't copy data, just size!
+     */
+    public World(final Class<CellT> cellType, final World<? extends Cell> world) {
+    	this.cellType   = cellType;
+    	this.seed 		= world.seed;
+    	this.randomSeed = world.randomSeed;
+    	this.cells 		= world.cells;
+    	this.rows 		= world.rows;
+    	this.columns	= world.columns;
+    }
+    
     /**
      * Initializes the World with Cells and Life within the cells.
      */
@@ -83,11 +102,26 @@ public final class World {
       
         // Cell objects now created later; 
         // the World object doesn't know the type of the Cell (Hexagon or Square)
-        cells = new Cell[columns][rows];
-       
-       
+       //  cells = new Cell [columns][rows];
+
+    	
+    	
+    	
+    	cells = new Cell[columns][rows];
+    	
+    	//cells = (CellT[][])(new Cell[columns][rows]);
+    	
+    	
     }
 
+    /**
+     * Gets the Cell type.
+     * @return Cell type class.
+     */
+    public Class<CellT> getCellType() {
+    	return cellType;
+    }
+    
     /**
      * Gets the cells of the World.
      * @return an ArrayList of cells.
@@ -181,7 +215,7 @@ public final class World {
     	for (int i = 0; i < columns; i++) {
     		for (int j = 0; j < rows; j++) {
     			
-    			// if(cells[i][j] == null) continue;
+    			 if(cells[i][j] == null) continue;
     			Life l = cells[i][j].getLife(LifeType.values());
     			if (l != null)
     				lives += cells[i][j].getLives().size();
@@ -196,21 +230,32 @@ public final class World {
 
     
     /**
-     * Creates & returns the Cell at this location.
+     * Adds the Cell at its desired location.
      * 
      * @param row the row this Cell is found in
      * @param column the column this Cell is found in
      * @return the desired Cell object
      */
-    public Cell createCellAt(final Cell newCell, int column, int row) {
+    public Cell addCell(final CellT newCell) throws IndexOutOfBoundsException {
       
-        // Return null if this row/column is outside bounds.
+    	if (newCell == null) {
+    		return null;
+    	}
+    	
+    	int column = newCell.getColumn();
+    	int row = newCell.getRow();
+    	
+    	
+        /* Return null if this row/column is outside bounds.
+        // Now the exception must be caught.
         if (row < 0 || column < 0) {
             return null;
         }
         if (row >= rows || column >= columns) {
             return null;
         }
+        */
+    	
         cells[column][row] = newCell; // new Cell(this, column, row);
         cells[column][row].addLife(Creator.createLife(cells[column][row], randomSeed));
 
@@ -269,6 +314,10 @@ public final class World {
      */
     public long getSeed(boolean raw) {
         return seed;
+    }
+    
+    public String toString() {
+    	return "World size: " + columns + "," + rows;
     }
     
     

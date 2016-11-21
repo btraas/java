@@ -21,7 +21,7 @@ public class HexCell extends Cell {
      * @param col this Cell resides on.
      * @param row this Cell resides on.
     */
-    public HexCell(final World world, int col, int row) {
+    public HexCell(final World<HexCell> world, int col, int row) {
     	super(world, col, row);
         //hex = new Hexagon(new Point(valueX, valueY), radius, getEmptyColor());
         //this.circle = new Circle(10, Color.GREEN);
@@ -31,7 +31,7 @@ public class HexCell extends Cell {
     
     
     @Override
-    public Class<?> getShape() {
+    public Class<? extends Cell> getShape() {
     	return HexCell.class;
     }
     
@@ -106,6 +106,12 @@ public class HexCell extends Cell {
         return distance;
          
     }
+
+
+	@Override
+	public HexCell[][] get2DArray(int columns, int rows) {
+		return new HexCell[columns][rows];
+	}
     
 }
 
