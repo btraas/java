@@ -1,5 +1,0 @@
-package ca.bcit.comp2526.a2b;
-
-public enum SimpleLifeType implements Edible {
-
-}
