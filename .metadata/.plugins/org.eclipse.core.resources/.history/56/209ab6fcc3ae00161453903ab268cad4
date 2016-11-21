@@ -1,0 +1,41 @@
+package ca.bcit.comp2526.a2b;
+
+/**
+ * An Arithmetic Table Type, either addition or multiplication.
+ * Also defines the input / output characters that represent this enum
+ * (eg. + / *)
+ * 
+ * @author Brayden Traas
+ * @version 2016-09-25
+ */
+
+public enum Terrain {
+    MULT( '*' ), // Multiplication table 
+    ADD( '+' );  // Addition table
+
+    public final char identifier; // The character that represents this Enum.
+    
+    // Providing a constructor for this Enum. TableType.MULT runs this constructor
+    // (TableType('*')) which sets the character identifier.
+    private Terrain(char charIdentifier) {
+        identifier = charIdentifier;
+    }
+
+
+    /**
+     * Get the Enum from a character identifier.
+     * 
+     * @param input Character to get the Enum for
+     * @return Enum pertaining to character identifier
+     */
+    public static Terrain fromChar(char input) {
+        for (Terrain tempTable : Terrain.values()) {
+            if (input == tempTable.identifier) {
+                return tempTable;
+            }
+        }
+        return null;
+    }
+
+
+}

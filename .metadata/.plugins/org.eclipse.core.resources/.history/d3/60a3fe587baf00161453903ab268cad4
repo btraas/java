@@ -1,0 +1,9 @@
+package ca.bcit.comp2526.a2b;
+
+public abstract class LifeTools {
+
+	public LifeTools() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

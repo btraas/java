@@ -1,0 +1,12 @@
+package ca.bcit.comp2526.a2b;
+
+public enum LifeTools2 implements Edible {
+	PLANT, HERBIVORE, OMNIVORE, CARNIVORE;
+	
+	protected LifeType getLifeType() {
+		return LifeType.valueOf(this.name());
+	}
+	
+	
+	
+}

@@ -1,0 +1,57 @@
+package ca.bcit.comp2526.a2b;
+
+public enum SimpleLifeType implements Edible {
+	PLANT, HERBIVORE, OMNIVORE, CARNIVORE;
+	
+	protected LifeType type;
+	
+	private SimpleLifeType() {
+		type = getLifeType();
+	}
+	
+	private LifeType getLifeType() {
+		return LifeType.valueOf(this.name());
+	}
+	
+protected static class ReproductionStats {
+    	
+    	protected int minSpawn;
+    	protected int maxSpawn;
+    	
+    	protected int minNeighbors;
+    	protected int minEmpty;
+    	protected int minFood;
+	    
+    	private ReproductionStats(int minSpawn, int maxSpawn, 
+    			int minNeighbors, int minEmpty, int minFood) {
+    		this.minSpawn = minSpawn;
+    		this.maxSpawn = maxSpawn;
+    		this.minNeighbors = minNeighbors;
+    		this.minEmpty = minEmpty;
+    		this.minFood = minFood;
+    	}
+    }
+    
+    protected static class MoveStats {
+    	
+    	protected int min;
+    	protected int max;
+    	protected int sense;
+    	
+    	private MoveStats(int min, int max, int sense) {
+    		if (max < min) {
+    			try {
+					throw new Exception("MAX > MIN!");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+    		}
+    		this.min = min;
+    		this.max = max;
+    		this.sense = sense;
+    	}
+    	
+    }
+	
+	
+}

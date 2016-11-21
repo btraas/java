@@ -1,0 +1,21 @@
+package ca.bcit.comp2526.a2b;
+
+import java.awt.Color;
+
+public class WaterHexCell extends HexCell implements WaterCell {
+
+
+	public WaterHexCell(HexCell origin) {
+		super(origin.getWorld(), 
+				origin.getColumn(),
+				origin.getRow()
+				);
+
+	}
+
+	@Override
+	public Color getEmptyColor() {
+		return super.getEmptyColor();
+	}
+
+}

@@ -1,0 +1,118 @@
+package ca.bcit.comp2526.a2b;
+
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+/**
+ * <p>An Animal.
+ * Subclass of Life, but also abstract.</p>
+ * 
+ * <p>Defines some further abstract methods
+ *  that must be implemented by child classes,
+ *  must have food, and is Moveable.</p>
+ * 
+ * @author Brayden Traas
+ * @version 2016-10-22
+ */
+public abstract class Animal extends Life implements Moveable<Cell> {
+
+    
+    
+    //private static final String NO_MOVES =              "No moves found...";
+  
+    //protected int foodSupply;
+    private int eatAmount;
+    
+    private int minMove;
+    private int maxMove;
+    
+    //protected Class<?>[] invalidMoveToTypes;
+  
+    public Animal(Cell location, Color color, 
+    				int initialFood,
+    				int eatAmount,
+    				int minMove,
+    				int maxMove,
+    				Class<?>[] invalidMoveToTypes,
+    				Class<?>[] foodTypes) {
+        super(location, color, initialFood, foodTypes);
+        this.eatAmount = eatAmount;
+        this.minMove = minMove;
+        this.maxMove = maxMove;
+        this.incompatibleTypes = invalidMoveToTypes;
+    }
+
+    
+    /**
+     * Processes this Animal's turn. Must be implemented as per Life.
+     */
+    public void processTurn() {
+        
+        super.processTurn();
+        
+        
+        
+        System.out.println(" " + getCell()+" NOW CONTAINS: " + getCell().occupiers);
+    }
+    
+    public int getMoveMin() {
+        return minMove;
+    }
+    
+    public int getMoveMax() {
+        return maxMove;
+    }
+    
+    /**
+     *  Gets a Herbivore's valid food types.
+     *  @return an array of valid types to eat.
+     */
+    public Class<?>[] getFoodTypes() {
+        return foodTypes;
+    }
+    
+
+    /*
+
+    public Class<?>[] getInvalidMoveToTypes() {
+        return invalidMoveToTypes;
+    }
+    */
+    
+    
+    
+    
+    
+    
+    
+    /**
+     * Creates a MoveDecision.
+     * 
+     * <p>Can be overridden by a child class, to specify
+     * a certain decision type per Animal type.</p>
+     * 
+     * <p>This, the default method, chooses randomly
+     * from all possible options.</p>
+     * 
+     * <p>Since we are using the raw MoveDecision Class, we must supply a type to be passed (Cell).
+     *  MoveDecision is not statically only work for Cell objects, it works for whatever type is
+     *  passed via the parameterized type. 
+     *  Other child classes of MoveDecision force the Cell type.</p>
+     * 
+     * 
+     * @param seed - Random object from the World object
+     * @param options - All available options for moving
+     * @return a MoveDecision object
+     */
+    @Override
+    public Cell decideMove(final Random seed, final Cell[] options) {
+        return (new MoveDecision<Cell>(seed, options)).decide();
+    }
+    
+  
+    
+    
+    
+}

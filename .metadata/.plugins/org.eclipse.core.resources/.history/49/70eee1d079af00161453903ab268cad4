@@ -1,0 +1,16 @@
+package ca.bcit.comp2526.a2b;
+
+public static enum SimpleLifeType implements Edible {
+	PLANT, HERBIVORE, OMNIVORE, CARNIVORE;
+	
+	protected LifeType type;
+	
+	private SimpleLifeType() {
+		type = getLifeType();
+	}
+	
+	private LifeType getLifeType() {
+		return LifeType.valueOf(this.name());
+	}
+	
+}

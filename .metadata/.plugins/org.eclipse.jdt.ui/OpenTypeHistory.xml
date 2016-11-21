@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <typeInfoHistroy>
 <typeInfo handle="=Assignment2B/C:\/Program Files\/Java\/jdk1.8.0_73\/jre\/lib\/rt.jar&lt;java.awt.event(KeyListener.class[KeyListener" modifiers="1537" timestamp="1455581620586"/>
-<typeInfo handle="=Assignment2B/src&lt;ca.bcit.comp2526.a2b{HexCell.java[HexCell" modifiers="1" timestamp="1478992499979"/>
-<typeInfo handle="=Assignment2B/src&lt;ca.bcit.comp2526.a2b{SquareCell.java[SquareCell" modifiers="1" timestamp="1478993455801"/>
+<typeInfo handle="=Assignment2B/src&lt;ca.bcit.comp2526.a2b{HexCell.java[HexCell" modifiers="1" timestamp="1479622057965"/>
+<typeInfo handle="=Assignment2B/src&lt;ca.bcit.comp2526.a2b{SquareCell.java[SquareCell" modifiers="1" timestamp="1479622079451"/>
+<typeInfo handle="=Assignment2B/src&lt;ca.bcit.comp2526.a2b{Edible.java[Edible" modifiers="513" timestamp="1479611195979"/>
 </typeInfoHistroy>

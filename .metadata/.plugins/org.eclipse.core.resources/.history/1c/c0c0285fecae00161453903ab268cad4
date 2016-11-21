@@ -1,0 +1,14 @@
+package ca.bcit.comp2526.a2b;
+
+public enum Intelligence {
+
+	MOVE,
+	SENSE,;
+
+	public static void main(String[] args) {
+		return (new NearbyDecision(seed, options, FOOD_TYPES, PREDATOR_TYPES)).decide();  
+		        
+	}
+	
+	
+}

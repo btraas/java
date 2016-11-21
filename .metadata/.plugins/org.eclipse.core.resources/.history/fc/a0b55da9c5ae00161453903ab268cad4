@@ -1,0 +1,45 @@
+package ca.bcit.comp2526.a2b;
+
+import java.awt.Color;
+import java.awt.Image;
+
+/**
+ * A Terrain Type for Cells to have.
+ * 
+ * @author Brayden Traas
+ * @version 2016-11-19
+ */
+
+public enum Terrain {
+	
+    DEFAULT( Terrain.DIRT ), // Default / Dirt 
+    DIRT( 	"dirt", 	new Color(163, 117, 73), 	getImage("dirt.png") ),		  // Dirt
+    WATER( 	"water", 	new Color(0, 85, 255), 		getImage("water.png")); 	  // Water
+    		
+
+    public final String identifier; // The String that represents this Enum.
+    
+    // Providing a constructor for this Enum. Terrain.Water runs this constructor
+    // (Terrain('water')) which sets the character identifier.
+    private Terrain(String stringIdentifier, Color color, Image image) {
+        identifier = stringIdentifier;
+    }
+
+
+    /**
+     * Get the Enum from a string identifier.
+     * 
+     * @param input String to get the Enum for
+     * @return Enum pertaining to string identifier
+     */
+    public static Terrain fromChar(final String input) {
+        for (Terrain tempTable : Terrain.values()) {
+            if (input.equalsIgnoreCase(tempTable.identifier)) {
+                return tempTable;
+            }
+        }
+        return null;
+    }
+
+
+}

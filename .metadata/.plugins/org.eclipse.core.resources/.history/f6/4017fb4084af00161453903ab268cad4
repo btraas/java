@@ -1,0 +1,19 @@
+package ca.bcit.comp2526.a2b;
+
+import java.util.ArrayList;
+
+/**
+ * A type that takes up space.
+ * @author Brayden Traas
+ * @version 1
+ *
+ */
+public interface Matter {
+
+	
+	static Matter[] combine(Matter[] one, Matter[] two) {
+		ArrayList<Matter> all = new ArrayList<Matter>();
+		for ()
+	}
+	
+}

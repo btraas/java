@@ -1,0 +1,42 @@
+package ca.bcit.comp2526.a2b;
+
+/**
+ * A Terrain Type for Cells to have.
+ * 
+ * @author Brayden Traas
+ * @version 2016-11-19
+ */
+
+public enum Terrain {
+	
+    DEFAULT( "dirt" ), // Default / Dirt 
+    DIRT("dirt"),
+    WATER( "water" ); 	  // Water
+    		
+
+    public final String identifier; // The String that represents this Enum.
+    
+    // Providing a constructor for this Enum. Terrain.Water runs this constructor
+    // (Terrain('water')) which sets the character identifier.
+    private Terrain(String stringIdentifier) {
+        identifier = stringIdentifier;
+    }
+
+
+    /**
+     * Get the Enum from a string identifier.
+     * 
+     * @param input String to get the Enum for
+     * @return Enum pertaining to string identifier
+     */
+    public static Terrain fromChar(final String input) {
+        for (Terrain tempTable : Terrain.values()) {
+            if (input.equalsIgnoreCase(tempTable.identifier)) {
+                return tempTable;
+            }
+        }
+        return null;
+    }
+
+
+}

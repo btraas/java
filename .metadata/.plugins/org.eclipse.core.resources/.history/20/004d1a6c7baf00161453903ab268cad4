@@ -1,0 +1,15 @@
+package ca.bcit.comp2526.a2b;
+
+public abstract class LifeTools {
+
+	protected enum Type {
+		PLANT, HERBIVORE, OMNIVORE, CARNIVORE;
+		
+	}
+	
+	
+	public LifeTools() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

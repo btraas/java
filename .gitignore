@@ -2,12 +2,14 @@
 /build/
 /bin/
 target/
- 
+.metadata/ 
+.recommenders/
+
 # OS Files #
 .DS_Store
  
-*.class
- 
+*.class 
+
 # Package Files #
 *.jar
 *.war
