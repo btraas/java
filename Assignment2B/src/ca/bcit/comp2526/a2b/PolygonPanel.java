@@ -32,8 +32,8 @@ public abstract class PolygonPanel<CellT> extends JPanel {
 
     protected World<? extends Cell> world;
 	
-	protected int width; // Number of columns
-    protected int height; // Number of rows
+	protected final int columns; // Number of columns
+    protected final int rows; // Number of rows
 	
     protected int offset = 0;
     protected int apothem = 2; 		// Apothem of the polygon = radius of inscribed circumference
@@ -47,8 +47,8 @@ public abstract class PolygonPanel<CellT> extends JPanel {
 	public PolygonPanel(final World<? extends Cell> world) {
 		this.world = world;
     	
-    	this.width = world.getColumnCount();
-    	this.height = world.getRowCount();
+    	this.columns = world.getColumnCount();
+    	this.rows = world.getRowCount();
 	}
 
 	protected abstract Polygon buildPolygon(final Cell cell);

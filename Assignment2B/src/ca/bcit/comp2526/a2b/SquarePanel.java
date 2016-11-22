@@ -34,8 +34,8 @@ public final class SquarePanel extends PolygonPanel<SquareCell> {
         rectWidth = 2 * offset + side;
         rectHeight = 2 * apothem;
 
-        for (int i = 0; i < width; i++) {
-        	for (int j = 0; j < height; j++) {
+        for (int i = 0; i < columns; i++) {
+        	for (int j = 0; j < rows; j++) {
         		world.addCell(new SquareCell(world, i, j));
         	}
         }
@@ -45,8 +45,8 @@ public final class SquarePanel extends PolygonPanel<SquareCell> {
     
     @Override
     public Dimension getPreferredSize() {
-        int panelWidth = width * gridWidth;
-        int panelHeight = height * rectHeight + apothem + 1;
+        int panelWidth = columns * gridWidth;
+        int panelHeight = rows * rectHeight + apothem + 1;
         return new Dimension(panelWidth, panelHeight);
     }
 

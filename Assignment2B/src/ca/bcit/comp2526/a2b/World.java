@@ -1,7 +1,6 @@
 package ca.bcit.comp2526.a2b;
 
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -54,8 +53,10 @@ public final class World<CellT extends Cell> {
     private Class<CellT> cellType;
     private final long seed;
     private final Random randomSeed;
-    private int rows;
+    
     private int columns;
+    private int rows;
+    
     
     private Cell[][] cells;
   
@@ -76,8 +77,11 @@ public final class World<CellT extends Cell> {
         
         this.seed = (long)seed;
         this.randomSeed = new Random((long)seed);
-        this.rows = rows;
+        
         this.columns = columns;
+        this.rows = rows;
+        
+        init();
     }
     
     /** 
@@ -91,21 +95,24 @@ public final class World<CellT extends Cell> {
     	this.seed 		= world.seed;
     	this.randomSeed = world.randomSeed;
     	this.cells 		= world.cells;
-    	this.rows 		= world.rows;
+    	
     	this.columns	= world.columns;
+    	this.rows 		= world.rows;
+    	
+    	init();
     }
     
     /**
      * Initializes the World with Cells and Life within the cells.
      */
-    public void init() throws IOException {
+    public void init() {
       
         // Cell objects now created later; 
         // the World object doesn't know the type of the Cell (Hexagon or Square)
        //  cells = new Cell [columns][rows];
 
     	
-    	
+    	System.out.println("Initializing world with "+columns+","+rows);
     	
     	cells = new Cell[columns][rows];
     	
@@ -246,15 +253,17 @@ public final class World<CellT extends Cell> {
     	int row = newCell.getRow();
     	
     	
-        /* Return null if this row/column is outside bounds.
+        // Return null if this row/column is outside bounds.
         // Now the exception must be caught.
         if (row < 0 || column < 0) {
-            return null;
+            throw new IndexOutOfBoundsException("Index < 0!");
         }
         if (row >= rows || column >= columns) {
-            return null;
+        	throw new IndexOutOfBoundsException(
+        			"Index > max ("+row+">="+rows+")" +
+        			" or ("+column+">="+columns+")");
         }
-        */
+        
     	
         cells[column][row] = newCell; // new Cell(this, column, row);
         cells[column][row].addLife(Creator.createLife(cells[column][row], randomSeed));

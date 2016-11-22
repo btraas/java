@@ -67,8 +67,8 @@ public final class Settings extends JFrame {
         DEFAULTS.add(new Setting("evasivebufferdistance", "1", "Distance to keep from predators"));
         
         // How big to create the world.
-        DEFAULTS.add(new Setting("worldsizex", "" + DEFAULT_WORLDSIZE, "Number of columns"));
-        DEFAULTS.add(new Setting("worldsizey", "" + DEFAULT_WORLDSIZE, "Number of rows"));
+        DEFAULTS.add(new Setting("worldcolumns", "" + DEFAULT_WORLDSIZE, "Number of columns"));
+        DEFAULTS.add(new Setting("worldrows", "" + DEFAULT_WORLDSIZE, "Number of rows"));
         DEFAULTS.add(new Setting("cellradius", "" + DEFAULT_CELLSIZE, "Cell size (px)"));
         
         // What data to place in the Cells. Options:

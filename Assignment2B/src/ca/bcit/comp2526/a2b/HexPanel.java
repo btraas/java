@@ -26,12 +26,11 @@ public class HexPanel extends PolygonPanel<HexCell> {
         rectWidth = 2 * offset + hexSide;
         rectHeight = 2 * apothem;
 
-        this.width = world.getColumnCount();
-    	this.height = world.getRowCount();
-        
-        
-        for (int i = 0; i < width; i++) {
-        	for (int j = 0; j < height; j++) {
+        System.out.println(columns+","+rows);
+        for (int i = 0; i < columns; i++) {
+        	System.out.println("adding column "+i+"/"+columns+"-"+world.getColumnCount());
+        	for (int j = 0; j < rows; j++) {
+        		//System.out.println("attempting "+i+","+j);
         		world.addCell(new HexCell(world, i, j));
         	}
         }
@@ -42,8 +41,8 @@ public class HexPanel extends PolygonPanel<HexCell> {
         
     @Override
     public Dimension getPreferredSize() {
-        int panelWidth = width * gridWidth + offset;
-        int panelHeight = height * rectHeight + apothem + 1;
+        int panelWidth = columns * gridWidth + offset;
+        int panelHeight = rows * rectHeight + apothem + 1;
         return new Dimension(panelWidth, panelHeight);
     }
 
@@ -79,7 +78,8 @@ public class HexPanel extends PolygonPanel<HexCell> {
     public boolean tileIsWithinBoard(final Point coordinates) {
         int column = coordinates.x;
         int row = coordinates.y;
-        return (column >= 0 && column < width) && (row >= 0 && row < height);
+        return (column >= 0 && column < columns)
+        		&& (row >= 0 && row < rows);
     }
 
 }

@@ -433,31 +433,16 @@ public abstract class Cell {
      * @return the row.
      */
     public int getRow() {
-        return location.x; //row;
+        return location.y; //row;
     }
     
-    /**
-     * Sets the row this Cell exists in.
-     * @param row - new row for this Cell.
-     */
-    public void setRow(int row) {
-        location.setLocation(row, location.y);
-    }
   
     /**
      * Gets the column this Cell exists in.
      * @return the column this Cell exists in.
      */
     public int getColumn() {
-        return location.y;
-    }
-    
-    /**
-     * Updates the column this Cell exists in.
-     * @param col - column to set.
-     */
-    public void setColumn(int column) {
-        location.setLocation(location.x, column);
+        return location.x;
     }
     
     /**

@@ -17,8 +17,8 @@ import javax.swing.JPanel;
  */
 public final class Main {
     
-	private static final String WORLD_SIZE_X = "worldSizeX";
-	private static final String WORLD_SIZE_Y = "worldSizeY";
+	private static final String WORLD_SIZE_X = "worldColumns";
+	private static final String WORLD_SIZE_Y = "worldRows";
 	
 	private static final String GRID_TYPE = "gridType";
     private static final String HEX_GRID = "hex";
@@ -99,7 +99,6 @@ public final class Main {
             panel = new SquarePanel(new World<SquareCell>(SquareCell.class, world));
         }
         
-        world.init();
         
         frame = new GameFrame(world);
         frame.setTitle("Assignment 2B");
