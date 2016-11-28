@@ -114,9 +114,18 @@ public final class World<CellT extends Cell> {
     	
     	System.out.println("Initializing world with "+columns+","+rows);
     	
+    	// Current initialization
     	cells = new Cell[columns][rows];
     	
-    	//cells = (CellT[][])(new Cell[columns][rows]);
+    	
+    	// Testing (CellT is a parameterized type that extends Cell).
+    	//CellT[][] tmpCells;
+    	
+    	// Cannot create a generic array of CellT
+    	//tmpCells = new CellT[columns][rows];
+    	
+    	// Type safety: Unchecked cast from Cell[][] to CellT[][]
+    	//tmpCells = (CellT[][])(new Cell[columns][rows]);
     	
     	
     }
@@ -162,6 +171,7 @@ public final class World<CellT extends Cell> {
             	 *   
             	 *   Ergo, any life.
             	 */
+            	
             	
                    if (cells[i][j] != null 
                 		   && cells[i][j].getLife(LifeType.values()) != null) {

@@ -24,8 +24,9 @@ public enum LifeType implements Edible {
 
 	// To add a LifeType, we need to add it here and in
 	// LifeTools.Type, so they can refer to each other.
-	
-	/* Name, String, Color, inital food, Food Types, Incompatible move types */
+
+
+	// Reproduction = min, max, neighbor species, neighbor empties, neighbor food
 	
 	PLANT(		Color.GREEN, 			 // Base color
 				10,						 // Turns before death
@@ -39,10 +40,12 @@ public enum LifeType implements Edible {
 	HERBIVORE(	Color.YELLOW,	
 				6,
 				new LifeTools.MoveStats(1, 1, 2),
-				new LifeTools.ReproductionStats(1, 2, 1, 2, 2),
+				new LifeTools.ReproductionStats(1, 2, 1, (World.HEX ? 1 : 2), (World.HEX ? 1 : 2)),
 				new Edible[] { 	LifeTools.Type.PLANT, Terrain.WATER }, 
 				new LifeTools.IncompatibleArray( new Matter[] { 
-						LifeTools.Type.HERBIVORE }),
+						LifeTools.Type.HERBIVORE, 
+						LifeTools.Type.CARNIVORE, 
+						LifeTools.Type.OMNIVORE }),
 				new LifeTools.AvoidArray( new Matter[] { 
 						LifeTools.Type.CARNIVORE, 
 						LifeTools.Type.OMNIVORE })),
@@ -62,7 +65,7 @@ public enum LifeType implements Edible {
 	OMNIVORE(	Color.MAGENTA, 
 				4,  
 				new LifeTools.MoveStats(1, 1, 3),
-				new LifeTools.ReproductionStats(1, 2, 1, 3, 3),
+				new LifeTools.ReproductionStats(1, 2, 1, (World.HEX ? 1 : 3), (World.HEX ? 2 : 3)),
 				new Edible[] { 	LifeTools.Type.PLANT, 
 								LifeTools.Type.CARNIVORE, 
 								Terrain.WATER },
@@ -127,6 +130,7 @@ public enum LifeType implements Edible {
 	 * @return an array of Matter types
 	 */
 	public Matter[] getIncompatibleTypes() {
+		// if (this == LifeType.HERBIVORE) System.out.println("HERB incomp: "+Arrays.asList(incompatibleTypes.data));
 		return simpleToComplex(incompatibleTypes.data);
 	}
 

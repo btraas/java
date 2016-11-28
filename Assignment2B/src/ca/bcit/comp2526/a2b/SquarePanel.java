@@ -25,7 +25,7 @@ public final class SquarePanel extends PolygonPanel<SquareCell> {
     public SquarePanel(final World<SquareCell> world) {
         
     	super(world);
-    	int side = CELL_RADIUS;
+    	int side = (int)CELL_RADIUS;
 
        // this.hexSide = hexSide;
         apothem = (int) (side / 2);

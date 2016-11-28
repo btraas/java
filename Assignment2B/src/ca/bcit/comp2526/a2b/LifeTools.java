@@ -13,7 +13,7 @@ public abstract class LifeTools {
 		// TODO Auto-generated constructor stub
 	}
 	
-	protected static LifeType getLifeType(LifeTools.Type type) {
+	protected static LifeType getLifeType(final LifeTools.Type type) {
 		if (type == null) {
 			return null;
 		}
@@ -82,14 +82,13 @@ public abstract class LifeTools {
     	
     }
     
-    private static abstract class MatterArray {
+    protected static abstract class MatterArray {
     	protected final Matter[] data;
     	
     	protected MatterArray() {
     		this.data = new Matter[]{};
     	}
-    	@SuppressWarnings("unused")
-		protected MatterArray(final Matter[] data) {
+    	protected MatterArray(final Matter[] data) {
     		this.data = data;
     	}
     }
@@ -97,13 +96,17 @@ public abstract class LifeTools {
     protected static class AvoidArray extends MatterArray {
     	
     	protected AvoidArray(){}
-    	protected AvoidArray(final Matter[] data) {}
+    	protected AvoidArray(final Matter[] data) {
+    		super(data);
+    	}
     }
     
     protected static class IncompatibleArray extends MatterArray {
     	
     	protected IncompatibleArray(){}
-    	protected IncompatibleArray(final Matter[] data) {}
+    	protected IncompatibleArray(final Matter[] data) {
+    		super(data);
+    	}
     }
 	
 

@@ -19,7 +19,9 @@ public class HexPanel extends PolygonPanel<HexCell> {
     
     public HexPanel(final World<HexCell> world) {
         super(world);
-        int hexSide = CELL_RADIUS;
+        
+        
+        int hexSide = (int)CELL_RADIUS;
     	apothem = (int) (hexSide * Math.cos(Math.PI / 6));
         offset = (int) (hexSide * Math.sin(Math.PI / 6));
         gridWidth = offset + hexSide;

@@ -22,13 +22,15 @@ import javax.swing.JPanel;
  */
 @SuppressWarnings("serial")
 public abstract class PolygonPanel<CellT> extends JPanel {
+	
+	private static final double REFERENCE_CELL_SIZE = 25;
 
 	private static final Polygon ARROW_TEMPLATE = new Polygon(
 			new int[] { 10, 20, 20, 25, 15, 5, 10 },
 			new int[] { 0, 0, 10, 10, 20, 10, 10 },
 			7);
 	
-	protected static final int CELL_RADIUS = Settings.getInt("cellRadius");
+	protected static final double CELL_RADIUS = Settings.getInt("cellRadius");
 
     protected World<? extends Cell> world;
 	
@@ -57,14 +59,26 @@ public abstract class PolygonPanel<CellT> extends JPanel {
 	@Override
 	public abstract Dimension getPreferredSize();
 	
-	private static final Polygon getArrow(int posX, int posY) {
-	
+	private static final Polygon getArrow(int posX, int posY, double scale) {
+		
+		int[] xPoints = new int[ARROW_TEMPLATE.npoints];
+		int[] yPoints = new int[ARROW_TEMPLATE.npoints];
+		
+		for (int i = 0; i < ARROW_TEMPLATE.npoints; i++) {
+			xPoints[i] = (int)Math.ceil(ARROW_TEMPLATE.xpoints[i] * scale);
+			yPoints[i] = (int)Math.ceil(ARROW_TEMPLATE.ypoints[i] * scale);
+			System.out.println("point "+xPoints[i]+","+yPoints[i]);
+		}
+		
+		//System.out.println(xPoints);
+		
 		Polygon arrow = new Polygon(
-				ARROW_TEMPLATE.xpoints, 
-				ARROW_TEMPLATE.ypoints, 
+				xPoints, 
+				yPoints, 
 				ARROW_TEMPLATE.npoints);
 		
 		arrow.translate(posX, posY);
+		
 		
 		return arrow;
 	}
@@ -139,7 +153,7 @@ public abstract class PolygonPanel<CellT> extends JPanel {
 	            	graphics.setClip(poly);
 	            	cell.getTerrain().drawImage(
 	            			graphics, location.x, location.y, 
-	            			CELL_RADIUS*2, CELL_RADIUS*2);
+	            			(int)CELL_RADIUS*2, (int)CELL_RADIUS*2);
 	            	graphics.setClip(null);
 	            }
 	
@@ -168,17 +182,30 @@ public abstract class PolygonPanel<CellT> extends JPanel {
 	            		if (previous != null && !previous.equals(life.getCell())) {
 	            			double angle = Math.toRadians(angle(previous, life.getCell()));
 
+	            			double scale = CELL_RADIUS / REFERENCE_CELL_SIZE; 
+	            			
 	            			AffineTransform transform = new AffineTransform();
 	            			
-	            			int centerX = posX + (CELL_RADIUS / 2);
-	            			int centerY = posY + (CELL_RADIUS / 2);
+	            			int centerX = posX + (int)(CELL_RADIUS / 2);
+	            			int centerY = posY + (int)(CELL_RADIUS / 2);
 	            			transform.rotate(angle, centerX, centerY);
+
+	            			
+	            			System.out.println(CELL_RADIUS + " / " + REFERENCE_CELL_SIZE + " = " + scale);
+	            			AffineTransform scaleTransform = new AffineTransform();
+	            			
+	            		//	scaleTransform.scale(scale, scale);
+	            			
+	            			
+	            			
+	            			//transform.scale(scale, scale);
 
 	            			
 	            			
 	            			Graphics2D g2d2 = (Graphics2D) g2d.create();
 	            			
-	            			g2d2.fill(transform.createTransformedShape(getArrow(posX, posY)));
+	            			g2d2.setTransform(scaleTransform);
+	            			g2d2.fill(transform.createTransformedShape(getArrow(posX, posY, scale)));
 	            			
 	            			//g2d2.rotate(angle);
 	            			//g2d2.fillPolygon(getArrow(posX, posY));
@@ -195,7 +222,7 @@ public abstract class PolygonPanel<CellT> extends JPanel {
 	            }
 	            
 	        	graphics.setColor(Cell.TEXT_COLOR);
-	            graphics.drawString(cell.getText(), location.x + offset, (location.y + rectHeight));
+	            graphics.drawString(cell.getText(), location.x + offset, (location.y + (rectHeight/2)));
 	            
 	            
 	        }

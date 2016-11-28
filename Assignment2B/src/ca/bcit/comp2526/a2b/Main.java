@@ -74,7 +74,8 @@ public final class Main {
      * @throws IOException
      */
     public static void createWorld() throws IOException  {
-    	World<? extends Cell> world; 
+    	
+    	World<? extends Cell> world;
     	final GameFrame frame; 
 
         // Now loaded at Main Class initialization, before main() method.
@@ -91,12 +92,14 @@ public final class Main {
         String gridType = Settings.get(GRID_TYPE);
         if (gridType.equalsIgnoreCase(HEX_GRID)) {
         	
-        	world = new World<HexCell>(HexCell.class, sizeX, sizeY);
-			panel = new HexPanel(new World<HexCell>(HexCell.class, world));
+        	World<HexCell> tmpWorld = new World<HexCell>(HexCell.class, sizeX, sizeY);
+			panel = new HexPanel(tmpWorld);
+			world = tmpWorld;
         	
         } else {
-        	world = new World<SquareCell>(SquareCell.class, sizeX, sizeY);
-            panel = new SquarePanel(new World<SquareCell>(SquareCell.class, world));
+        	World<SquareCell> tmpWorld = new World<SquareCell>(SquareCell.class, sizeX, sizeY);
+            panel = new SquarePanel(tmpWorld);
+            world = tmpWorld;
         }
         
         
