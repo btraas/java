@@ -4,7 +4,6 @@ package ca.bcit.comp2526.a2b;
 import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -402,16 +401,8 @@ public abstract class Cell {
     public final boolean hasOrIs(final Matter[] types) {
         
         if (types == null) {
-            if (World.DEBUG && terrain == Terrain.WATER) {
-                System.out.println(" CELL " + this + "  hasOrIs(null)?... returning false");
-            }
             return false;
-        }
-        if (World.DEBUG && terrain == Terrain.WATER) {
-            System.out.println(" CELL "
-                    + this + " hasOrIs(" + Arrays.asList(types) + ")? "
-                    + (this.has(types) || this.is(types)));
-        }
+        }   
         return (this.has(types) || this.is(types));
     }
     
@@ -436,7 +427,7 @@ public abstract class Cell {
      * Gets the World this Cell resides in.
      * @return the World object reference.
      */
-    public World<? extends Cell> getWorld() {
+    public final World<? extends Cell> getWorld() {
         return world;
     }
     

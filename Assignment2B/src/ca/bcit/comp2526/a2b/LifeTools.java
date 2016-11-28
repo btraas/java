@@ -88,6 +88,7 @@ public abstract class LifeTools {
 
     }
     
+    
     protected abstract static class MatterArray {
         protected final Matter[] data;
         

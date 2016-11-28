@@ -9,7 +9,7 @@ import java.awt.Point;
  * @author Brayden Traas
  * @version 2016-11-02
  */
-public class HexCell extends Cell {
+public final class HexCell extends Cell {
    
     private static final String UNLIKE_TYPES = "Comparing unlike Cell types!!";
 

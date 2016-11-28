@@ -19,6 +19,9 @@ public final class World<CellT extends Cell> {
     private static long lastTime;
     //private static int lastTotal;
     
+    private static final String INITIALIZING_WORLD = "Initializing world with ";
+    
+    
     /**
      * Defines if we are debugging this application.
      */
@@ -93,7 +96,7 @@ public final class World<CellT extends Cell> {
         //  cells = new Cell [columns][rows];
         
         
-        System.out.println("Initializing world with " + columns + "," + rows);
+        System.out.println(INITIALIZING_WORLD + columns + "," + rows);
         
         // Current initialization
         cells = new Cell[columns][rows];
@@ -218,7 +221,7 @@ public final class World<CellT extends Cell> {
             }
             //System.out.println();
         }
-        System.out.println("lives: " + lives + " found: " + getLives().size());
+        System.out.println("1: " + lives + " 2: " + getLives().size());
         
     }
     

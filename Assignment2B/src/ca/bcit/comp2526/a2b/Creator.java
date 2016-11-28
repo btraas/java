@@ -1,7 +1,5 @@
 package ca.bcit.comp2526.a2b;
 
-
-import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -66,11 +64,6 @@ public class Creator {
             life = new Life(type, loc);
         }
 
-        if (World.DEBUG && life != null && life.type == LifeType.CARNIVORE) {
-            System.out.println("Checking if Cell " + loc 
-                + " has incompatible types (" 
-                + Arrays.asList(life.getIncompatibleTypes()) + ")...");
-        }
         
         // If this new life is not compatible with this cell
         // or its contents.

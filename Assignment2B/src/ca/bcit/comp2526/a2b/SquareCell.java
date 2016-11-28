@@ -8,7 +8,7 @@ package ca.bcit.comp2526.a2b;
  * @author Brayden Traas
  * @version 2
  */
-public class SquareCell extends Cell {
+public final class SquareCell extends Cell {
    
     //protected Color emptyColor = EMPTY_COLOR;
 

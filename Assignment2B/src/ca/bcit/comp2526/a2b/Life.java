@@ -26,6 +26,10 @@ import java.util.Random;
  */
 public final class Life implements Moveable<Cell> {
 
+    private static final String REPRODUCE_CELL_NULL = "ERROR: Cell is null!?";
+    private static final String NO_MOVES = "NO MOVES";
+    private static final String EATING = "Eating";
+    
     private static final int COLOR_VARIATION = 120;
     private static final double DARKEN_AMOUNT = (Settings.getInt("darkenPercent")) / 100.0;
     private static final int MAX_COLOR = 255;
@@ -259,7 +263,7 @@ public final class Life implements Moveable<Cell> {
         // System.out.println("Reproducing "+this.getClass().getSimpleName());
         Cell thisCell = getCell();
         if (thisCell == null) {
-            System.err.println("REPRODUCE WHEN CELL IS NULL!?!?!");
+            System.err.println(REPRODUCE_CELL_NULL);
             return;
         }
       
@@ -398,7 +402,7 @@ public final class Life implements Moveable<Cell> {
       
         if (newCell == null) {
             if (World.DEBUG) {
-                System.err.println("NO MOVES");
+                System.err.println(NO_MOVES);
             }
             return;
         }
@@ -471,7 +475,8 @@ public final class Life implements Moveable<Cell> {
         if (this.getCell().has(type.getFoodTypes(), null, this)) {
             Life food = this.getCell().getLife(type.getFoodTypes());
             if (World.DEBUG) {
-                System.out.println("  Eating " + food.getClass().getSimpleName());
+                System.out.println("  " + EATING + " " + food.getClass().getSimpleName());
+                        
             }
             this.getCell().removeLife(food);
             
@@ -497,6 +502,6 @@ public final class Life implements Moveable<Cell> {
     
         Point point = getCell() == null ? new Point(0, 0) : getCell().getLocation();
         return type + " Life:" + getLifeLeft() 
-            + " Loc:" + point.x + "," + point.y;
+            + " @" + point.x + "," + point.y;
     }
 }

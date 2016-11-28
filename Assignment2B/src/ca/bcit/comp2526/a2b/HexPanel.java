@@ -15,7 +15,9 @@ import java.awt.Polygon;
  *
  */
 @SuppressWarnings("serial")
-public class HexPanel extends PolygonPanel<HexCell> {
+public final class HexPanel extends PolygonPanel<HexCell> {
+    
+    private static final int SIDES = 6;
     
     /**
      * Instantiates a HexPanel with and for a World of HexCells.
@@ -25,8 +27,8 @@ public class HexPanel extends PolygonPanel<HexCell> {
         
         
         int hexSide = (int)CELL_RADIUS;
-        apothem = (int) (hexSide * Math.cos(Math.PI / 6));
-        offset = (int) (hexSide * Math.sin(Math.PI / 6));
+        apothem = (int) (hexSide * Math.cos(Math.PI / SIDES));
+        offset = (int) (hexSide * Math.sin(Math.PI / SIDES));
         gridWidth = offset + hexSide;
         rectWidth = 2 * offset + hexSide;
         rectHeight = 2 * apothem;

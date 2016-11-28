@@ -124,15 +124,17 @@ public final class Settings extends JFrame {
     protected Settings() {
     }
     
+    // Used internally only, like a struct. Key/Value/Name variables.
     private static class Setting {
         private String key;
         private String value;
         private String name;
         
+        
         private Setting() {
         }
         
-        private Setting(String key, String value, String name) {
+        private Setting(final String key, final String value, final String name) {
             this.key = key;
             this.value = value;
             this.name = name;
@@ -143,6 +145,7 @@ public final class Settings extends JFrame {
         }
     }
     
+    // Create a Settings panel
     protected void init() {
         setTitle(TITLE);
         
@@ -197,6 +200,7 @@ public final class Settings extends JFrame {
     
     }
     
+    // Save settings
     private void submit() {
         setFromPanel();
         save();
@@ -204,6 +208,7 @@ public final class Settings extends JFrame {
 
     }
     
+    // Set settings from the panel
     private void setFromPanel() {
         for (Component component : panel.getComponents()) {
             if (component instanceof JLabel) {

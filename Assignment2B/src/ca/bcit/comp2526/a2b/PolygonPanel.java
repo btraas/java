@@ -178,22 +178,31 @@ public abstract class PolygonPanel<CellT> extends JPanel {
                         
                         Cell previous = life.getPreviousCell();
                         
+                        // If moved since the last turn
                         if (previous != null && !previous.equals(life.getCell())) {
+                            
+                            // Find the angle between the last Cell and this one
                             double angle = Math.toRadians(angle(previous, life.getCell()));
                             
+                            // Find the scale as per the settings.properties cell size
                             double scale = CELL_RADIUS / REFERENCE_CELL_SIZE; 
                             
                             AffineTransform transform = new AffineTransform();
                             
                             int centerX = posX + (int)(CELL_RADIUS / 2);
                             int centerY = posY + (int)(CELL_RADIUS / 2);
+                            
+                            // Rotate the graphics according to the moved angle
                             transform.rotate(angle, centerX, centerY);
                             
                             AffineTransform scaleTransform = new AffineTransform();
 
                             Graphics2D g2d2 = (Graphics2D) g2d.create();
                             
+                            // Scale the graphics as per the set cell size
                             g2d2.setTransform(scaleTransform);
+                            
+                            // Fill the graphics with an Arrow
                             g2d2.fill(
                                     transform.createTransformedShape(getArrow(posX, posY, scale)));
                             
@@ -203,6 +212,7 @@ public abstract class PolygonPanel<CellT> extends JPanel {
                             g2d2.dispose();
 
                         } else {
+                            // Draw a circle
                             g2d.fillOval(
                                     posX, 
                                     posY, 

@@ -36,6 +36,9 @@ import java.util.Random;
  */
 public class NearbyDecision extends MoveDecision<Cell> {
   
+    
+    private static final String NO_PREDATORS_UNKNOWN_ERROR = 
+            "ERROR: unsafe move but no predators... this shouldn't happen!";
     private static final int EVASIVE_BUFFER = Settings.getInt("evasivebufferDistance");
     private static final Terrain SAFE_TERRAIN = Terrain.DEFAULT;
   
@@ -227,7 +230,7 @@ public class NearbyDecision extends MoveDecision<Cell> {
                     
                         if (predatorsHere.size() == 0) {
                             throw new RuntimeException(
-                             "ERROR: unsafe move but no predators... this shouldn't happen!");
+                             NO_PREDATORS_UNKNOWN_ERROR);
                         }
                     
                         for (Life occupier : predatorsHere) {
