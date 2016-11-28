@@ -32,7 +32,7 @@ import java.util.Random;
  *    
  *  
  * @author Brayden Traas
- * @version 2016-10-22
+ * @version 2
  */
 public class NearbyDecision extends MoveDecision<Cell> {
   
@@ -74,12 +74,14 @@ public class NearbyDecision extends MoveDecision<Cell> {
         
         for (int i = 0; i < options.length; i++) {
             
-        	/* has(this, that) -> aka has a life that is-a
-        	* positiveType, and not-a null object.
-        	*/
+            /* 
+             * has(this, that) -> aka has a life that is-a
+             * positiveType, and not-a null object.
+             *
+             */
             if (options[i].has(positiveTypes) 
-            	|| options[i].is(positiveTypes)) {
-            	newOptions.add(options[i]);
+                   || options[i].is(positiveTypes)) {
+                newOptions.add(options[i]);
             }
             
         }
@@ -104,7 +106,7 @@ public class NearbyDecision extends MoveDecision<Cell> {
      * Gets the non-negative options for this turn.
      * 
      * @param options - all options to choose from.
-     * @param negativeLifeTypes - types to avoid.
+     * @param negativeTypes - types to avoid.
      * @return a subset of options - only the non-negative ones.
      */
     public static Cell[] optionsWithout(final Cell[] options, 
@@ -114,9 +116,8 @@ public class NearbyDecision extends MoveDecision<Cell> {
       
         for (int i = 0; i < options.length; i++) {
             
-            if (options[i].has(negativeTypes) ||
-            	options[i].is(negativeTypes)) {
-            	continue;
+            if (options[i].hasOrIs(negativeTypes)) {
+                continue;
             }
             // Else add this option.
             newOptions.add(options[i]);
@@ -173,7 +174,7 @@ public class NearbyDecision extends MoveDecision<Cell> {
      *  omnivore is in range.
      * 
      * @param options to choose from
-     * @param negativeLifeTypes options to avoid
+     * @param negativeTypes options to avoid
      * @param dist to keep from negative options
      * @return all options that are far enough away from enemies.
      */
@@ -186,18 +187,14 @@ public class NearbyDecision extends MoveDecision<Cell> {
         
         // For each given move option
         for (int i = 0; i < options.length; i++) {
-            
-        	
         
-        	
             // Find ALL possible moves from this option's location
             Cell[] nearby = options[i].getNearbyCells(1, dist);
           
             //System.out.println("Cells nearby: "+nearby.length);
             
             
-            Cell[] safeMoves = NearbyDecision.optionsWithout(
-            		nearby, negativeTypes);
+            Cell[] safeMoves = NearbyDecision.optionsWithout(nearby, negativeTypes);
             
             //System.out.println("Safe Cells nearby: "+safeMovesInRange.length+"\n");
             
@@ -208,45 +205,46 @@ public class NearbyDecision extends MoveDecision<Cell> {
             if (safeMoves.length == nearby.length) {
                 safe = true;
             } else if (options[i].getTerrain() != SAFE_TERRAIN) {
-            	// Perform a check to see if the predators can move here.
-            	
-            	// Safe until proven otherwise.
-            	safe = true;
-            	
-            	ArrayList<Cell> safeList = new ArrayList<Cell>(Arrays.asList(safeMoves));
-            	
-            	// For each cell nearby this "potentially unsafe" cell
-            	for (int j = 0; j < nearby.length; j++) {
-            		// If this nearby Cell not in the safe list
-            		if (!safeList.contains(nearby[j])) {
-            			
-            			// If this Cell itself is unsafe...
-            			if (nearby[j].is(negativeTypes) 
-            					&& !nearby[j].has(negativeTypes)) {
-            				continue;
-            			}
-            			
-            			ArrayList<Life> predatorsHere = nearby[j].getLives(negativeTypes);
-            			
-            			if (predatorsHere.size() == 0) {
-            				throw new RuntimeException(
-            						"ERROR: unsafe move but no predators... this shouldn't happen!");
-            			}
-            			
-            			for (Life occupier : predatorsHere) {
-            				// If this (original move-to) Cell is not incompatible with this predator.
-            				//  i.e. If the predator in the nearby cell
-            				//  can move to this type of Cell.
-            				if (!options[i].is(occupier.getIncompatibleTypes())) {
-            					safe = false;
-            				}
-            			}
-            		}
-            	}
+                // Perform a check to see if the predators can move here.
+                
+                // Safe until proven otherwise.
+                safe = true;
+                
+                ArrayList<Cell> safeList = new ArrayList<Cell>(Arrays.asList(safeMoves));
+                
+                // For each cell nearby this "potentially unsafe" cell
+                for (int j = 0; j < nearby.length; j++) {
+                    
+                    // If this nearby Cell not in the safe list
+                    if (!safeList.contains(nearby[j])) {
+                    
+                        // If this Cell itself is unsafe...
+                        if (nearby[j].is(negativeTypes) && !nearby[j].has(negativeTypes)) {
+                            continue;
+                        }
+                    
+                        ArrayList<Life> predatorsHere = nearby[j].getLives(negativeTypes);
+                    
+                        if (predatorsHere.size() == 0) {
+                            throw new RuntimeException(
+                             "ERROR: unsafe move but no predators... this shouldn't happen!");
+                        }
+                    
+                        for (Life occupier : predatorsHere) {
+                            
+                            // If the original move-to Cell is not incompatible with this predator.
+                            //  i.e. If the predator in the nearby cell
+                            //  can move to this type of Cell.
+                            if (!options[i].is(occupier.getIncompatibleTypes())) {
+                                safe = false;
+                            }
+                        }
+                    }
+                }
             }
             
             if (safe) {
-            	newOptions.add(options[i]);
+                newOptions.add(options[i]);
             }
             
             
@@ -284,7 +282,7 @@ public class NearbyDecision extends MoveDecision<Cell> {
         //int distance = Settings.getInt("EvasiveBufferDistance");
         Cell[] evasive = getEvasiveOptions(nonNegative, negativeTypes, EVASIVE_BUFFER);
         
-       // System.out.println(" evasive: "+Arrays.asList(evasive));
+        // System.out.println(" evasive: "+Arrays.asList(evasive));
         
         // If no evasive was found, let parent decide from previously reduced subset.
         if ( evasive.length == 0 ) {

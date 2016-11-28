@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * Creates a Life or no life for a Cell.
+ * Creates a Lives and Cells given a Random object.
  * 
  * @author Brayden Traas
  * @version 2016-11-01
@@ -39,43 +39,44 @@ public class Creator {
      */
     public static Life createLife(final Cell loc, final Random seed) {
       
-    	int plantPct = plantChance;
-    	int herbivorePct = herbivoreChance + plantPct;
-    	int carnivorePct = carnivoreChance + herbivorePct;
-    	int omnivorePct  = omnivoreChance  + carnivorePct;
-    	
-    	Life life = null;
-    	LifeTools.Type type = null;
-    	int percent = getNextPercent(seed);
-    	if (percent <= plantPct) {
+        int plantPct = plantChance;
+        int herbivorePct = herbivoreChance + plantPct;
+        int carnivorePct = carnivoreChance + herbivorePct;
+        int omnivorePct  = omnivoreChance  + carnivorePct;
+        
+        Life life = null;
+        LifeTools.Type type = null;
+        int percent = getNextPercent(seed);
+        if (percent <= plantPct) {
             type = LifeTools.Type.PLANT;
         } else if (percent <= herbivorePct) {
             type = LifeTools.Type.HERBIVORE;
         } else if (percent <= carnivorePct) {
             type = LifeTools.Type.CARNIVORE;
         } else if (percent <= omnivorePct) {
-        	type = LifeTools.Type.OMNIVORE;
+            type = LifeTools.Type.OMNIVORE;
         }
       
-    	if (forceLifeType != null) {
-    		type = forceLifeType;
-    		forceLifeType = null;
-    	}
-    	
-    	if (type != null && type != LifeTools.Type.NULL) {
-    		life = new Life(type, loc);
-    	}
-    	
-    	if (World.DEBUG && life != null && life.type == LifeType.CARNIVORE) {
-    		System.out.println("Checking if Cell "+loc+" has incompatible types ("+Arrays.asList(life.getIncompatibleTypes())+")...");
-    	}
-    	
-    	// If this new life is not compatible with this cell
-    	// or its contents.
-    	if (life != null 
-    			&& loc.hasOrIs(life.getIncompatibleTypes())) {
-    		return null;
-    	}
+        if (forceLifeType != null) {
+            type = forceLifeType;
+            forceLifeType = null;
+        }
+        
+        if (type != null && type != LifeTools.Type.NULL) {
+            life = new Life(type, loc);
+        }
+
+        if (World.DEBUG && life != null && life.type == LifeType.CARNIVORE) {
+            System.out.println("Checking if Cell " + loc 
+                + " has incompatible types (" 
+                + Arrays.asList(life.getIncompatibleTypes()) + ")...");
+        }
+        
+        // If this new life is not compatible with this cell
+        // or its contents.
+        if (life != null && loc.hasOrIs(life.getIncompatibleTypes())) {
+            return null;
+        }
         
         return life;
     }
@@ -83,27 +84,25 @@ public class Creator {
     /**
      * Create a new Terrain given the seed.
      * 
-     * @param seed
+     * @param seed - Random object to use for this new Terrain
      * @return a Terrain enum.
      */
     public static Terrain newTerrain(final Random seed) {
-    	
-    	int waterPct = waterChance;
-    	int percent = getNextPercent(seed);
-    	
-    	Terrain chosen = Terrain.DEFAULT;
-    	
-    	if (percent <= waterPct) {
-    	
-    		chosen = Terrain.WATER;
-    	}
-    	
-    	if (forceTerrain != null) {
-    		chosen = forceTerrain;
-    	}
-    	
-    	forceTerrain = null;
-    	return chosen;
+        int waterPct = waterChance;
+        int percent = getNextPercent(seed);
+        
+        Terrain chosen = Terrain.DEFAULT;
+        
+        if (percent <= waterPct) {
+            chosen = Terrain.WATER;
+        }
+        
+        if (forceTerrain != null) {
+            chosen = forceTerrain;
+        }
+        
+        forceTerrain = null;
+        return chosen;
     }
     
   

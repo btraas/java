@@ -15,9 +15,9 @@ import java.awt.event.MouseListener;
  */
 public final class TurnListener extends MouseAdapter implements MouseListener, KeyListener {
 
-	private static final int TURN_SPEED_MS = Settings.getInt("turnSpeedMS");
-	private static boolean RUNNING = false;
-	
+    private static final int TURN_SPEED_MS = Settings.getInt("turnSpeedMS");
+    private static boolean RUNNING = false;
+
     private GameFrame worldFrame;
   
     /**
@@ -35,55 +35,53 @@ public final class TurnListener extends MouseAdapter implements MouseListener, K
     @Override
     public void mouseReleased(final MouseEvent event) {
         if (RUNNING) {
-        	return;
+            return;
         }
         RUNNING = true;
-    	worldFrame.takeTurn();
-    	RUNNING = false;
+        worldFrame.takeTurn();
+        RUNNING = false;
     }
     
     /**
      * Decides what happens when a key is released.
      */
     @Override
-	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-			
-			// If already running, stop. Using a variable instead of killing the thread,
-			//  so the turn is finished.
-			if (RUNNING) {
-				RUNNING = false;
-			} else {
-				RUNNING = true;
-				final TurnListener parent = this;
-				new Thread(new Runnable() {
-					public void run() {
-						World<?> world = parent.worldFrame.getWorld();
-						while (RUNNING && world.getLives().size() > 0) {
-							parent.worldFrame.takeTurn();
-							try {
-								Thread.sleep(TURN_SPEED_MS);
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}
-						RUNNING = false;
-					}
-				}).start();
-			}
-		}
+    public void keyReleased(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.VK_SPACE) {
+            
+            // If already running, stop. Using a variable instead of killing the thread,
+            //  so the turn is finished.
+            if (RUNNING) {
+                RUNNING = false;
+            } else {
+                RUNNING = true;
+                final TurnListener parent = this;
+                new Thread(new Runnable() {
+                    public void run() {
+                        World<?> world = parent.worldFrame.getWorld();
+                        while (RUNNING && world.getLives().size() > 0) {
+                            parent.worldFrame.takeTurn();
+                            try {
+                                Thread.sleep(TURN_SPEED_MS);
+                            } catch (InterruptedException exception) {
+                                exception.printStackTrace();
+                            }
+                        }
+                        RUNNING = false;
+                    }
+                }).start();
+            }
+        }
+    
+    }
 
-	}
+    @Override
+    public void keyTyped(KeyEvent event) {
+    }
 
-	@Override
-	public void keyTyped(KeyEvent e) {
-		
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		
-	}
+    @Override
+    public void keyPressed(KeyEvent event) { 
+        
+    }
     
 }

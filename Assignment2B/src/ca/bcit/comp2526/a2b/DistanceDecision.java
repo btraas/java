@@ -24,9 +24,9 @@ public class DistanceDecision extends NearbyDecision {
      * 
      * @param seed to make Random decisions from
      * @param options total to choose from
-     * @param positiveLifeTypes to target
-     * @param negativeLifeTypes to avoid
-     * @param current (location)
+     * @param positiveTypes to target.
+     * @param negativeTypes to avoid.
+     * @param self (Life object).
      * @param maxDistance to sense food / predators
      */
     public DistanceDecision(final Random seed, final Cell[] options, 
@@ -57,7 +57,7 @@ public class DistanceDecision extends NearbyDecision {
         for (int distance = 2; distance <= maxDistance; distance++) {
             // check from x - x (ring around this cell) for a goal.
             outlookOptions = self.getMoveToPossibilities(
-            		distance, distance);
+                    distance, distance);
             
             outlook = new NearbyFoodDecision(seed, outlookOptions, positiveTypes);
       

@@ -23,7 +23,7 @@ public class GameFrame extends JFrame {
      */
     public GameFrame(final World<? extends Cell> world) {
 
-    	this.world = world;
+        this.world = world;
         setBackground(Cell.EMPTY_COLOR);
     
         addMouseListener(turnListener);
@@ -34,7 +34,7 @@ public class GameFrame extends JFrame {
      * Initializes this GameFrame.
      */
     public void init() {
-    	pack();
+        pack();
     }
     
     

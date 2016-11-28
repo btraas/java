@@ -17,12 +17,12 @@ import javax.imageio.ImageIO;
  */
 
 public enum Terrain implements Edible {
-	
+
     
-    DIRT( 	"dirt", 	new Color(163, 117, 73), 	getImage("dirt.png"), 	false ), 		
-    WATER( 	"water", 	new Color(0, 85, 255), 		getImage("water.png"),	true ),
-    		
-	DEFAULT( Terrain.DIRT ); // Default / Dirt 
+    DIRT(   "dirt",     new Color(163, 117, 73),  getImage("dirt.png"),   false ),
+    WATER(  "water",    new Color(0, 85, 255),    getImage("water.png"),  true ),
+    
+    DEFAULT( Terrain.DIRT ); // Default / Dirt 
 
     private final String identifier; // The String that represents this Enum.
     private final Color  color;
@@ -31,16 +31,17 @@ public enum Terrain implements Edible {
     
     
     public Color getColor() {
-		return color;
-	}
+        return color;
+    }
 
-	private Terrain(final Terrain in) {
-    	this(in.identifier, in.color, in.image, in.difficult);
+    private Terrain(final Terrain in) {
+        this(in.identifier, in.color, in.image, in.difficult);
     }
     
     // Providing a constructor for this Enum. Terrain.Water runs this constructor
     // (Terrain('water')) which sets the character identifier.
-    private Terrain(final String identifier, final Color color, final Image image, boolean difficult) {
+    private Terrain(final String identifier, 
+            final Color color, final Image image, boolean difficult) {
         this.identifier = identifier;
         this.color = color;
         this.image = image;
@@ -52,7 +53,7 @@ public enum Terrain implements Edible {
      * @return true if difficult.
      */
     public boolean isDifficult() {
-    	return this.difficult;
+        return this.difficult;
     }
     
     /**
@@ -60,19 +61,19 @@ public enum Terrain implements Edible {
      * @return an array of difficult terrains.
      */
     public static Terrain[] getDifficults() {
-    	ArrayList<Terrain> terrains = new ArrayList<Terrain>();
-    	Terrain[] values = Terrain.values();
-    	for (int i = 0; i < values.length; i++) {
-    		if (values[i].isDifficult()) {
-    			terrains.add(values[i]);
-    		}
-    	}
-    	Terrain[] difficults = new Terrain[terrains.size()];
-    	int i = 0;
-    	for (Terrain terrain : terrains) {
-    		difficults[i++] = terrain;
-    	}
-    	return difficults;
+        ArrayList<Terrain> terrains = new ArrayList<Terrain>();
+        Terrain[] values = Terrain.values();
+        for (int i = 0; i < values.length; i++) {
+            if (values[i].isDifficult()) {
+                terrains.add(values[i]);
+            }
+        }
+        Terrain[] difficults = new Terrain[terrains.size()];
+        int iterator = 0;
+        for (Terrain terrain : terrains) {
+            difficults[iterator++] = terrain;
+        }
+        return difficults;
     }
 
     /**
@@ -92,15 +93,14 @@ public enum Terrain implements Edible {
 
     
     private static Image getImage(final String filename) {
-		try {
-			return ImageIO.read(new File(filename));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
-	}
-    
+        try {
+            return ImageIO.read(new File(filename));
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
+        
     /**
      * Draw this Terrain's image on the given graphics.
      * 
@@ -111,10 +111,10 @@ public enum Terrain implements Edible {
      * @param sizeY of the image
      */
     public void drawImage(final Graphics graphics, int offsetX, int offsetY, int sizeX, int sizeY) {
-		
-		graphics.drawImage(image, offsetX, offsetY, sizeX, sizeY, null);
-		
-	}
+        
+        graphics.drawImage(image, offsetX, offsetY, sizeX, sizeY, null);
+        
+    }
     
 
 

@@ -3,7 +3,7 @@ package ca.bcit.comp2526.a2b;
 import java.awt.Point;
 
 /**
- * A Hex Cell. Both a Hexagon and a Cell object.
+ * A Hex Cell.
  * Used for a hex grid (opposed to a square grid).
  * 
  * @author Brayden Traas
@@ -22,18 +22,12 @@ public class HexCell extends Cell {
      * @param row this Cell resides on.
     */
     public HexCell(final World<HexCell> world, int col, int row) {
-    	super(world, col, row);
+        super(world, col, row);
         //hex = new Hexagon(new Point(valueX, valueY), radius, getEmptyColor());
         //this.circle = new Circle(10, Color.GREEN);
-        
-        init();     
+     
     }
     
-    
-    @Override
-    public Class<? extends Cell> getShape() {
-    	return HexCell.class;
-    }
     
 
     
@@ -45,7 +39,7 @@ public class HexCell extends Cell {
     @Override
     public double distance(final Cell other) {
 
-    	// Must be a HexCell.
+        // Must be a HexCell.
         if (!(other instanceof HexCell)) {
             throw new RuntimeException(UNLIKE_TYPES);
         }
@@ -63,20 +57,14 @@ public class HexCell extends Cell {
  
         Point otherTheoretical = new Point(other.getLocation());
         
-        /*
-         * Backwards, I know... Too late to go back now
-         * 
-         * Scratch that, changing now. TODO remove this
-         * 
-         */
-        int thisX = getColumn();
-        int thisY = getRow();
-        int otherX = other.getColumn();
-        int otherY = other.getRow();
+        double thisX = (double)getColumn();
+        double thisY = (double)getRow();
+        double otherX = (double)other.getColumn();
+        double otherY = (double)other.getRow();
         
         
         
-        double diffY = Math.abs(thisY - otherY);
+
         
         // If this is even and other isn't
         if ( (thisX % 2) == 0 && (otherX % 2) != 0) {
@@ -89,17 +77,19 @@ public class HexCell extends Cell {
         
     
         // int distance = max(    
-        int dist1 = (int)Math.ceil(1 - (otherX / 2)) + (int)otherY;
-        dist1 -= ((int)Math.ceil(1 - (thisX / 2)) + (int)thisY);
+        double dist1 = Math.ceil(1 - (otherX / 2)) + otherY;
+        dist1 -= (Math.ceil(1 - (thisX / 2)) + thisY);
         dist1 = Math.abs(dist1);
          
-        int dist2 = -otherX - (int)Math.ceil(1 - (otherX / 2)) 
-                    - (int)otherY;
+        double dist2 = -otherX - Math.ceil(1 - (otherX / 2)) 
+                    - otherY;
         dist2 += thisX + Math.ceil(1 - (thisX / 2)) + thisY;
         dist2 = Math.abs(dist2);
           
+        double diffY = Math.abs(thisY - otherY);
+        
         //System.out.println("\n diffX:"+diffX+" dist1:"+dist1+" dist2:"+dist2 );
-        int distance = Math.max(Math.max(dist1, dist2), (int)diffY);
+        double distance = Math.max(Math.max(dist1, dist2), diffY);
               
         //System.out.println("distance from "+this+" to "+other+" is "+distance);
         
@@ -108,10 +98,5 @@ public class HexCell extends Cell {
     }
 
 
-	@Override
-	public HexCell[][] get2DArray(int columns, int rows) {
-		return new HexCell[columns][rows];
-	}
-    
 }
 

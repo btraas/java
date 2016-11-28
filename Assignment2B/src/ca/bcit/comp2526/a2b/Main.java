@@ -13,16 +13,16 @@ import javax.swing.JPanel;
  * Main.
  * 
  * @author Brayden Traas
- * @version 1.0
+ * @version 1.1
  */
 public final class Main {
     
-	private static final String WORLD_SIZE_X = "worldColumns";
-	private static final String WORLD_SIZE_Y = "worldRows";
-	
-	private static final String GRID_TYPE = "gridType";
+    private static final String WORLD_SIZE_X = "worldColumns";
+    private static final String WORLD_SIZE_Y = "worldRows";
+    
+    private static final String GRID_TYPE = "gridType";
     private static final String HEX_GRID = "hex";
-	
+
     private static final float SCREENSIZE_MULTIPLIER = 0.8f;
     private static final String NULL_SIZE = "Size cannot be null";
     private static final float MAX_PCT = 100.0f;
@@ -41,7 +41,7 @@ public final class Main {
      */
     static {
       
-    	TOOLKIT = Toolkit.getDefaultToolkit();
+        TOOLKIT = Toolkit.getDefaultToolkit();
         
     }
 
@@ -49,7 +49,7 @@ public final class Main {
      * Private constructor prevents instantiation of Main.
      */
     private Main() {
-    	
+    
     }
 
     /**
@@ -57,13 +57,13 @@ public final class Main {
      * @param argv command line arguments
      */
     public static void main(final String[] argv) throws IOException {
-    	final Settings settings = new Settings();
-    	
-    	position(settings);
+        final Settings settings = new Settings();
+    
+        position(settings);
         settings.init();
         settings.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         settings.setVisible(true);
-    	
+    
     }
     
     
@@ -71,12 +71,10 @@ public final class Main {
     
     /**
      * Creates a world.
-     * @throws IOException
      */
-    public static void createWorld() throws IOException  {
-    	
-    	World<? extends Cell> world;
-    	final GameFrame frame; 
+    public static void createWorld() {
+        World<? extends Cell> world;
+        final GameFrame frame; 
 
         // Now loaded at Main Class initialization, before main() method.
         //Settings.load();
@@ -91,13 +89,13 @@ public final class Main {
         JPanel panel;
         String gridType = Settings.get(GRID_TYPE);
         if (gridType.equalsIgnoreCase(HEX_GRID)) {
-        	
-        	World<HexCell> tmpWorld = new World<HexCell>(HexCell.class, sizeX, sizeY);
-			panel = new HexPanel(tmpWorld);
-			world = tmpWorld;
-        	
+        
+            World<HexCell> tmpWorld = new World<HexCell>(sizeX, sizeY);
+            panel = new HexPanel(tmpWorld);
+            world = tmpWorld;
+        
         } else {
-        	World<SquareCell> tmpWorld = new World<SquareCell>(SquareCell.class, sizeX, sizeY);
+            World<SquareCell> tmpWorld = new World<SquareCell>(sizeX, sizeY);
             panel = new SquarePanel(tmpWorld);
             world = tmpWorld;
         }

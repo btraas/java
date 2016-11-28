@@ -37,8 +37,8 @@ import javax.swing.SpringLayout;
 @SuppressWarnings("serial")
 public final class Settings extends JFrame {
 
-	private static final String TITLE = "A2B Settings";
-	
+    private static final String TITLE = "A2B Settings";
+
     private static final String DIR_STRING = "Working Directory = " 
         + System.getProperty("user.dir");
     private static final String LOADED = "Loaded ";
@@ -61,7 +61,9 @@ public final class Settings extends JFrame {
         DEFAULTS.add(new Setting("debug", "false", "Debug Application?"));
         
         // Upper limit to Life sense distance.
-        DEFAULTS.add(new Setting("maxsensedistance", "99", "Upper limit to Life sense (predators & food)"));
+        DEFAULTS.add(new Setting(   "maxsensedistance", 
+                                    "99", 
+                                    "Upper limit to Life sense (predators & food)"));
         
         // How far to keep away from predators.
         DEFAULTS.add(new Setting("evasivebufferdistance", "1", "Distance to keep from predators"));
@@ -74,7 +76,7 @@ public final class Settings extends JFrame {
         // What data to place in the Cells. Options:
         //  'food', 'coordinate', 'moves', 'none'
         DEFAULTS.add(new Setting("filltext", "none", 
-        		"What to show in the Cells: 'food', 'coordinate', 'moves', or 'none'"));
+                "What to show in the Cells: 'food', 'coordinate', 'moves', or 'none'"));
         
         // Type of grid: 'hex' or 'square' (default)
         DEFAULTS.add(new Setting("gridtype", "hex", "Type of grid: 'hex' or 'square' (default)"));
@@ -98,15 +100,20 @@ public final class Settings extends JFrame {
         DEFAULTS.add(new Setting("visiblelines", "false", "Show borders between Cells?"));
         
         // Time between auto-turns.
-        DEFAULTS.add(new Setting("turnspeedms", "50", "Time between turns (Spacebar to activate) in ms"));
+        DEFAULTS.add(new Setting(   "turnspeedms", 
+                                    "50", 
+                                    "Time between turns (Spacebar to activate) in ms"));
         
         // Percent to darken each turn.
-        DEFAULTS.add(new Setting("darkenpercent", "80", "Percent of previous color retained on Life aging"));
+        DEFAULTS.add(new Setting(   "darkenpercent", 
+                                    "80", 
+                                    "Percent of previous color retained on Life aging"));
         
         // Seed to use for Random events. 0 = Generate new.
         // All settings need to be the same for a repeat scenario.
-        DEFAULTS.add(new Setting("seed", "0", 
-        		"Seed to use for Random events. 0 = Generate new. (All settings must be the same for a repeat scenario)"));
+        DEFAULTS.add(new Setting(   "seed", 
+                                    "0", 
+                                    "Seed to use for Random events. 0 = Generate new."));
     
     }
     
@@ -114,112 +121,104 @@ public final class Settings extends JFrame {
     private JPanel panel;
     private static LinkedHashMap<String, Setting> settings = new LinkedHashMap<String, Setting>();
     
-    public Settings() {
-    	
+    protected Settings() {
     }
     
     private static class Setting {
-    	private String key;
-    	private String value;
-    	private String name;
-    	
-    	private Setting() {
-    		
-    	}
-    	
-    	private Setting(String key, String value, String name) {
-    		this.key = key;
-    		this.value = value;
-    		this.name = name;
-    		
-    		if (name == null) {
-    			this.name = key;
-    		}
-    	}
+        private String key;
+        private String value;
+        private String name;
+        
+        private Setting() {
+        }
+        
+        private Setting(String key, String value, String name) {
+            this.key = key;
+            this.value = value;
+            this.name = name;
+            
+            if (name == null) {
+                this.name = key;
+            }
+        }
     }
     
-    public void init() {
-    	setTitle(TITLE);
+    protected void init() {
+        setTitle(TITLE);
         
-    	load();
-    	
-    	
-    	SpringLayout layout = new SpringLayout();
-    	panel = new JPanel(layout);
-    	//panel.setLayout(new GridLayout(settings.size(), 2));
-    	
-    	int i = 0;
-    	for (String key : settings.keySet()) {
-    		Setting setting = settings.get(key);
-    		JLabel label = new JLabel("<html>" + setting.name + "</html>");
-    		panel.add(label);
-    		
-    		JTextField textField = new JTextField(setting.value, 10);
-    		label.setLabelFor(textField);
-    		label.setName(setting.key);
-    		panel.add(textField);
-    		
-    		 layout.putConstraint(SpringLayout.WEST, label, 10, SpringLayout.WEST, panel);
-    		 layout.putConstraint(SpringLayout.NORTH, label, 25 + i, SpringLayout.NORTH, panel);
-    		 layout.putConstraint(SpringLayout.NORTH, textField, 25 + i, SpringLayout.NORTH, panel);
-    		 layout.putConstraint(SpringLayout.WEST, textField, 20, SpringLayout.EAST, label);
-
-    		 i += 25;
-    	}
-    	JButton saveButton = new JButton("Save");
-    	
-    	JFrame settingsFrame = this;
-    	saveButton.addActionListener(new ActionListener() {
-    	    public void actionPerformed(ActionEvent e) {
-    	    	submit();
-    	    	settingsFrame.dispose();
-    	    }
-    	});
-    	panel.add(saveButton);
-    	
-    	layout.putConstraint(SpringLayout.WEST, saveButton, 10, SpringLayout.WEST, panel);
-		layout.putConstraint(SpringLayout.NORTH, saveButton, 25 + i, SpringLayout.NORTH, panel);
-    	
-    	add(panel);
-    	
-    	addWindowListener(new WindowAdapter()
-        {
+        load();
+        
+        
+        SpringLayout layout = new SpringLayout();
+        panel = new JPanel(layout);
+        //panel.setLayout(new GridLayout(settings.size(), 2));
+        
+        int pos = 0;
+        for (String key : settings.keySet()) {
+            Setting setting = settings.get(key);
+            JLabel label = new JLabel("<html>" + setting.name + "</html>");
+            panel.add(label);
+            
+            JTextField text = new JTextField(setting.value, 10);
+            label.setLabelFor(text);
+            label.setName(setting.key);
+            panel.add(text);
+            
+            layout.putConstraint(SpringLayout.WEST, label, 10, SpringLayout.WEST, panel);
+            layout.putConstraint(SpringLayout.NORTH, label, 25 + pos, SpringLayout.NORTH, panel);
+            layout.putConstraint(SpringLayout.NORTH, text, 25 + pos, SpringLayout.NORTH, panel);
+            layout.putConstraint(SpringLayout.WEST, text, 20, SpringLayout.EAST, label);
+            
+            pos += 25;
+        }
+        JButton saveButton = new JButton("Save");
+        
+        JFrame settingsFrame = this;
+        saveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                submit();
+                settingsFrame.dispose();
+            }
+        });
+        panel.add(saveButton);
+        
+        layout.putConstraint(SpringLayout.WEST, saveButton, 10, SpringLayout.WEST, panel);
+        layout.putConstraint(SpringLayout.NORTH, saveButton, 25 + pos, SpringLayout.NORTH, panel);
+        
+        add(panel);
+        
+        addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(WindowEvent e)
-            {
-            	submit();
-                e.getWindow().dispose();
+            public void windowClosing(WindowEvent event) {
+                submit();
+                event.getWindow().dispose();
             }
         });
     
     }
     
     private void submit() {
-    	setFromPanel();
-    	save();
-    		
-    	try {
-			Main.createWorld();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+        setFromPanel();
+        save();
+        Main.createWorld();
+
     }
     
     private void setFromPanel() {
-    	for (Component component : panel.getComponents()) {
-    		if (component instanceof JLabel) {
-    			JLabel label = (JLabel)component;
-    			
-    			Setting setting = settings.get(label.getName());
-    			
-    			Component labelFor = label.getLabelFor();
-    			String value = labelFor == null || !(labelFor instanceof JTextField) ? 
-    					"ERROR" : ((JTextField)labelFor).getText();
-    			
-    			setting.value = value;
-    			
-    		}
-    	}
+        for (Component component : panel.getComponents()) {
+            if (component instanceof JLabel) {
+                JLabel label = (JLabel)component;
+                
+                Setting setting = settings.get(label.getName());
+                
+                Component labelFor = label.getLabelFor();
+                String value = labelFor == null || !(labelFor instanceof JTextField) ? "ERROR" 
+                        : ((JTextField)labelFor).getText();
+                
+                setting.value = value;
+
+            }
+        }
     }
     
   
@@ -239,7 +238,7 @@ public final class Settings extends JFrame {
         Properties properties = new Properties();
         
         try {
-        	properties.load(new FileInputStream(filename));
+            properties.load(new FileInputStream(filename));
         } catch (Exception exception) {
             Settings.setDefaults();
             Settings.save();
@@ -252,9 +251,9 @@ public final class Settings extends JFrame {
             
             Setting setting = settings.get(key);
             if (setting == null) {
-            	settings.put(key, new Setting(key, value, null));
+                settings.put(key, new Setting(key, value, null));
             } else {
-            	setting.value = value;
+                setting.value = value;
             }
             System.out.println(LOADED + key + ARROW + value);
         }
@@ -285,8 +284,8 @@ public final class Settings extends JFrame {
             
             Properties properties = new Properties();
             for (String key : settings.keySet()) {
-            	Setting setting = settings.get(key);
-            	properties.setProperty(setting.key, setting.value);
+                Setting setting = settings.get(key);
+                properties.setProperty(setting.key, setting.value);
             }
             
             properties.store(output, null);

@@ -16,14 +16,14 @@ import java.util.Random;
  */
 public final class World<CellT extends Cell> {
 
-	private static long lastTime;
-	//private static int lastTotal;
-	
-	/**
-	 * Debug this application?
-	 */
+    private static long lastTime;
+    //private static int lastTotal;
+    
+    /**
+     * Defines if we are debugging this application.
+     */
     public static final boolean DEBUG = Settings.getBoolean("debug");
-	
+
     /**
      * Decides if we show food on each Cell.
      */
@@ -50,7 +50,7 @@ public final class World<CellT extends Cell> {
      */
     public static final boolean HEX = Settings.get("gridType").equalsIgnoreCase("hex");
     
-    private Class<CellT> cellType;
+    //private Class<CellT> cellType;
     private final long seed;
     private final Random randomSeed;
     
@@ -67,9 +67,8 @@ public final class World<CellT extends Cell> {
      * @param rows to instantiate with.
      * @param columns to instantiate with.
      */
-    public World(final Class<CellT> cellType, int columns, int rows) {
+    public World(int columns, int rows) {
 
-    	this.cellType = cellType;
         double seed = Settings.getDouble("seed");
         seed = seed > 0 ? seed : System.currentTimeMillis();
       
@@ -84,24 +83,6 @@ public final class World<CellT extends Cell> {
         init();
     }
     
-    /** 
-     * Creates a World. If a seed is loaded from settings, use it.
-     *  Otherwise, a random seed is used (based on current time).
-     * 
-     * @param World to copy from. Doesn't copy data, just size!
-     */
-    public World(final Class<CellT> cellType, final World<? extends Cell> world) {
-    	this.cellType   = cellType;
-    	this.seed 		= world.seed;
-    	this.randomSeed = world.randomSeed;
-    	this.cells 		= world.cells;
-    	
-    	this.columns	= world.columns;
-    	this.rows 		= world.rows;
-    	
-    	init();
-    }
-    
     /**
      * Initializes the World with Cells and Life within the cells.
      */
@@ -109,41 +90,34 @@ public final class World<CellT extends Cell> {
       
         // Cell objects now created later; 
         // the World object doesn't know the type of the Cell (Hexagon or Square)
-       //  cells = new Cell [columns][rows];
-
-    	
-    	System.out.println("Initializing world with "+columns+","+rows);
-    	
-    	// Current initialization
-    	cells = new Cell[columns][rows];
-    	
-    	
-    	// Testing (CellT is a parameterized type that extends Cell).
-    	//CellT[][] tmpCells;
-    	
-    	// Cannot create a generic array of CellT
-    	//tmpCells = new CellT[columns][rows];
-    	
-    	// Type safety: Unchecked cast from Cell[][] to CellT[][]
-    	//tmpCells = (CellT[][])(new Cell[columns][rows]);
-    	
-    	
+        //  cells = new Cell [columns][rows];
+        
+        
+        System.out.println("Initializing world with " + columns + "," + rows);
+        
+        // Current initialization
+        cells = new Cell[columns][rows];
+        
+        
+        // Testing (CellT is a parameterized type that extends Cell).
+        //CellT[][] tmpCells;
+        
+        // Cannot create a generic array of CellT
+        //tmpCells = new CellT[columns][rows];
+        
+        // Type safety: Unchecked cast from Cell[][] to CellT[][]
+        //tmpCells = (CellT[][])(new Cell[columns][rows]);
+        
+        
     }
 
-    /**
-     * Gets the Cell type.
-     * @return Cell type class.
-     */
-    public Class<CellT> getCellType() {
-    	return cellType;
-    }
     
     /**
      * Gets the cells of the World.
      * @return an ArrayList of cells.
      */
     public ArrayList<Cell> getCells() {
-    	ArrayList<Cell> cells = new ArrayList<Cell>();
+        ArrayList<Cell> cells = new ArrayList<Cell>();
         for (int i = 0; i < columns; i++) {
             for (int j = 0; j < rows; j++) {
               
@@ -160,21 +134,21 @@ public final class World<CellT extends Cell> {
      * @return an ArrayList of lives.
      */
     public ArrayList<Life> getLives() {
-    	ArrayList<Life> lives = new ArrayList<Life>();
+        ArrayList<Life> lives = new ArrayList<Life>();
         for (int i = 0; i < columns; i++) {
             for (int j = 0; j < rows; j++) {
               
-            	/*
-            	 *  getLife(LifeType.values()) denotes:
-            	 * 	 Get any life that:
-            	 *   	: is-a Life
-            	 *   
-            	 *   Ergo, any life.
-            	 */
-            	
-            	
-                   if (cells[i][j] != null 
-                		   && cells[i][j].getLife(LifeType.values()) != null) {
+                /*
+                 *  getLife(LifeType.values()) denotes:
+                 *      Get any life that:
+                 *      : is-a Life
+                 *   
+                 *   Ergo, any life.
+                 */
+            
+            
+                if (cells[i][j] != null 
+                        && cells[i][j].getLife(LifeType.values()) != null) {
                     lives.addAll(cells[i][j].getLives());
                 }
             }
@@ -189,16 +163,15 @@ public final class World<CellT extends Cell> {
      */
     public void takeTurn() {
       
-    	long thisTime = System.currentTimeMillis();
-    	long diff = (thisTime - lastTime);
-    	
-    	// long total = lastTotal+1;
-    	
-    	System.out.println(" Turn time: " + diff + "ms");// + " total: "+lastTotal+" ratio:"
-        		//	+ratio);
-    	
-    	lastTime = thisTime;
-    	
+        long thisTime = System.currentTimeMillis();
+        long diff = (thisTime - lastTime);
+        
+        // long total = lastTotal+1;
+        
+        System.out.println(" Turn time: " + diff + "ms");
+        
+        lastTime = thisTime;
+
         //boolean showFood = Boolean.parseBoolean(Settings.get.getProperty("showfood"));
         //System.out.println("\nSHOWFOOD: "+showFood+"\n");
       
@@ -207,16 +180,15 @@ public final class World<CellT extends Cell> {
         boolean debug = Settings.getBoolean("debug");
         // Shuffle the order of the lives to process with the World's seed.
         if (!debug) {
-        	Collections.shuffle(lives, getSeed());
+            Collections.shuffle(lives, getSeed());
         } else {
-        	runDebug();
+            runDebug();
         }
         //if(debug) return;
         
         // Do this separately so we don't reprocess tiles.
         for (Life occupier: lives) {
             if (occupier != null) {
-          //  	map.put(occupier.getClass(), map.get(occupier.getClass())+1);
                 occupier.processTurn();
             }
         }
@@ -225,60 +197,64 @@ public final class World<CellT extends Cell> {
         
     }
 
+    /*
+     * Just used for testing.
+     */
     private void runDebug() {
 
-    	int lives = 0;
-    	
-    	for (int i = 0; i < columns; i++) {
-    		for (int j = 0; j < rows; j++) {
-    			
-    			 if(cells[i][j] == null) continue;
-    			Life l = cells[i][j].getLife(LifeType.values());
-    			if (l != null)
-    				lives += cells[i][j].getLives().size();
-    				//System.out.print(cells[j][i].getLives().size()+",");
-    		}
-    		//System.out.println();
-    	}
-    	System.out.println("lives: "+lives+" found: "+getLives().size());
-    	
+        int lives = 0;
+        
+        for (int i = 0; i < columns; i++) {
+            for (int j = 0; j < rows; j++) {
+                
+                if (cells[i][j] == null) {
+                    continue;
+                }
+                Life life = cells[i][j].getLife(LifeType.values());
+                if (life != null) {
+                    lives += cells[i][j].getLives().size();
+                }
+                //System.out.print(cells[j][i].getLives().size()+",");
+            }
+            //System.out.println();
+        }
+        System.out.println("lives: " + lives + " found: " + getLives().size());
+        
     }
     
 
     
     /**
      * Adds the Cell at its desired location.
-     * 
-     * @param row the row this Cell is found in
-     * @param column the column this Cell is found in
-     * @return the desired Cell object
+     *
+     * @param newCell - the Cell to add. Gets location from the Cell itself.
      */
-    public Cell addCell(final CellT newCell) throws IndexOutOfBoundsException {
+    public void addCell(final CellT newCell) throws IndexOutOfBoundsException {
       
-    	if (newCell == null) {
-    		return null;
-    	}
-    	
-    	int column = newCell.getColumn();
-    	int row = newCell.getRow();
-    	
-    	
+        if (newCell == null) {
+            return;
+        }
+    
+        int column = newCell.getColumn();
+        int row = newCell.getRow();
+   
+    
         // Return null if this row/column is outside bounds.
         // Now the exception must be caught.
         if (row < 0 || column < 0) {
             throw new IndexOutOfBoundsException("Index < 0!");
         }
         if (row >= rows || column >= columns) {
-        	throw new IndexOutOfBoundsException(
-        			"Index > max ("+row+">="+rows+")" +
-        			" or ("+column+">="+columns+")");
+            throw new IndexOutOfBoundsException(
+                "Index > max (" + row + ">=" + rows + ")" 
+                + " or (" + column + ">=" + columns + ")");
         }
         
-    	
+    
         cells[column][row] = newCell; // new Cell(this, column, row);
         cells[column][row].addLife(Creator.createLife(cells[column][row], randomSeed));
 
-        return cells[column][row];
+        // return cells[column][row];
     }
     
     /**
@@ -336,7 +312,7 @@ public final class World<CellT extends Cell> {
     }
     
     public String toString() {
-    	return "World size: " + columns + "," + rows;
+        return "World size: " + columns + "," + rows;
     }
     
     

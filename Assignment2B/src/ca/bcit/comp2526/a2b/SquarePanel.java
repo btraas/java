@@ -16,18 +16,18 @@ import java.awt.Polygon;
 @SuppressWarnings("serial")
 public final class SquarePanel extends PolygonPanel<SquareCell> {
     
-	/**
-	 * Creates a Panel for the given world.
-	 * Ensures the passed world's Cell type is
-	 * "SquareCell"
-	 * @param world to display
-	 */
+    /**
+     * Creates a Panel for the given world.
+     * Ensures the passed world's Cell type is
+     * "SquareCell"
+     * @param world to display
+     */
     public SquarePanel(final World<SquareCell> world) {
         
-    	super(world);
-    	int side = (int)CELL_RADIUS;
-
-       // this.hexSide = hexSide;
+        super(world);
+        int side = (int)CELL_RADIUS;
+        
+        // this.hexSide = hexSide;
         apothem = (int) (side / 2);
         offset = (int) 0;
         gridWidth = offset + side;
@@ -35,9 +35,9 @@ public final class SquarePanel extends PolygonPanel<SquareCell> {
         rectHeight = 2 * apothem;
 
         for (int i = 0; i < columns; i++) {
-        	for (int j = 0; j < rows; j++) {
-        		world.addCell(new SquareCell(world, i, j));
-        	}
+            for (int j = 0; j < rows; j++) {
+                world.addCell(new SquareCell(world, i, j));
+            }
         }
     }
     
@@ -52,11 +52,11 @@ public final class SquarePanel extends PolygonPanel<SquareCell> {
 
     @Override
     public Polygon buildPolygon(final Cell cell) {
-    	
-    	if (!(cell instanceof SquareCell)) {
-    		return null;
-    	}
-    	
+        
+        if (!(cell instanceof SquareCell)) {
+            return null;
+        }
+        
         Polygon square = new Polygon();
         Point origin = tileToPixel(cell.location.x, cell.location.y);
         square.addPoint(origin.x, origin.y);
@@ -67,7 +67,7 @@ public final class SquarePanel extends PolygonPanel<SquareCell> {
         //square.addPoint(origin.x, origin.y + hexApotheme);
         return square;
     }
-	 
+
     @Override
     protected Point tileToPixel(int column, int row) {
         Point pixel = new Point();

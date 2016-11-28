@@ -2,7 +2,6 @@ package ca.bcit.comp2526.a2b;
 
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,11 +21,11 @@ import java.util.List;
 public abstract class Cell {
 
 
-	
+
     /**
      * The Cell's empty color.
      */
-	public static final Color EMPTY_COLOR = new Color(163, 117, 73); // brown
+    public static final Color EMPTY_COLOR = new Color(163, 117, 73); // brown
 
     /**
      * The Cell's border color.
@@ -50,11 +49,17 @@ public abstract class Cell {
     protected final Terrain terrain;
     //protected Color lifeColor = getEmptyColor();
     
+    /**
+     * Creates a Cell linking back to its world and position.
+     * 
+     * @param world - World object this Cell belongs to
+     * @param column - the column this Cell resides in
+     * @param row - the row this Cell resides in
+     */
     public Cell(final World<? extends Cell> world, int column, int row) {
-    	this.world = world;
-    	location = new Point(column, row);
-    	this.terrain = Creator.newTerrain(world.getSeed());
-    	
+        this.world = world;
+        location = new Point(column, row);
+        this.terrain = Creator.newTerrain(world.getSeed());
     }
     
     /**
@@ -62,7 +67,7 @@ public abstract class Cell {
      * Eg: WaterHexCell and HexCell both return HexCell.class
      * @return the Shape class of this Cell.
      */
-    public abstract Class<? extends Cell> getShape();
+    //private abstract Class<? extends Cell> getShape();
     
     
     /**
@@ -72,23 +77,13 @@ public abstract class Cell {
      */
     public abstract double distance(final Cell other);
     
-  
-    public abstract Cell[][] get2DArray(int columns, int rows);
-    
-    /**
-     * 
-     */
-    public void init() {
-        //add(text);
-        //add(circle);
-    }
-    
+   
     /**
      * Gets the terrain of this Cell. 
      * @return the Terrain 
      */
     public Terrain getTerrain() {
-    	return terrain;
+        return terrain;
     }
     
     /**
@@ -96,7 +91,7 @@ public abstract class Cell {
      * @return Color for backgrounds.
      */
     public Color getEmptyColor() {
-    	return terrain.getColor();
+        return terrain.getColor();
     }
     
     
@@ -133,8 +128,7 @@ public abstract class Cell {
                     // special case for hex, not all within x / y distance
                     //  are within the true distance...
                     if (this.distance(newCell) > max || this.distance(newCell) < min) {
-                       // System.err.println("invalid distance from "+this+" to "+newCell+" = "+this.distance(newCell));
-                    	continue;
+                        continue;
                     }
                     
                     cells.add(newCell);
@@ -145,18 +139,19 @@ public abstract class Cell {
         return cells.toArray(new Cell[cells.size()]);
     }
     
-    private Cell[] getAdjacentCellsWithAndWithout(final Matter[] mustHaveOrBe, final Matter[] mustNotHaveOrBe) {
+    private Cell[] getAdjacentCellsWithAndWithout(
+        final Matter[] mustHaveOrBe, final Matter[] mustNotHaveOrBe) {
+
         Cell[] all = getAdjacentCells();
         ArrayList<Cell> valid = new ArrayList<Cell>();
         
         //System.out.println("Cell adj: "+all.length);
         
         
-        for (int i=0; i<all.length; i++) {
-        	
+        for (int i = 0; i < all.length; i++) {
             if ((mustHaveOrBe == null || all[i].hasOrIs(mustHaveOrBe)) 
-            		&& !all[i].hasOrIs(mustNotHaveOrBe)) {
-            	valid.add(all[i]);
+                && !all[i].hasOrIs(mustNotHaveOrBe)) {
+                valid.add(all[i]);
             }
             
         }
@@ -172,7 +167,7 @@ public abstract class Cell {
      */
     public Cell[] getAdjacentCellsWithout(final Matter[] invalidTypes) {
 
-    	return getAdjacentCellsWithAndWithout(null, invalidTypes);
+        return getAdjacentCellsWithAndWithout(null, invalidTypes);
         
     }
     
@@ -182,7 +177,7 @@ public abstract class Cell {
      */
     public Cell[] getAdjacentCellsWith(final Matter[] validTypes) {
         
-    	return getAdjacentCellsWithAndWithout(validTypes, null);
+        return getAdjacentCellsWithAndWithout(validTypes, null);
         
     }
     
@@ -208,24 +203,22 @@ public abstract class Cell {
      * @return the occupiers that match.
      */
     public final ArrayList<Life> getLives(final Matter[] validTypes) {
-    	ArrayList<Life> newLives = new ArrayList<Life>();
-    	if (occupiers == null || occupiers.size() == 0) {
-    		return newLives;
-    	}
-    	for (Life life : occupiers) {
-    		if (life == null) {
-    			continue;
-    		}
-    		for (int i = 0; i < validTypes.length; i++) {
-    			// Check if this Life is this valid type, and
-    			//  add if we haven't already.
-    			if (validTypes[i] == life.type
-    				&& !newLives.contains(life)) {
-    				newLives.add(life);
-    			}
-    		}
-    	}
-    	return newLives;
+        ArrayList<Life> newLives = new ArrayList<Life>();
+        if (occupiers == null || occupiers.size() == 0) {
+            return newLives;
+        }
+        for (Life life : occupiers) {
+            if (life == null) {
+                continue;
+            }
+            for (int i = 0; i < validTypes.length; i++) {
+                /* Check if this Life is this valid & not yet added, and add */
+                if (validTypes[i] == life.type && !newLives.contains(life)) {
+                    newLives.add(life);
+                }
+            }
+        }
+        return newLives;
     }
     
     /**
@@ -244,64 +237,67 @@ public abstract class Cell {
      * @param occupier to remove for this Cell.
      */
     public final void removeLife(final Life occupier) {
-    	if (occupier == null) {
-    		occupiers.clear();
-    		occupiers.trimToSize();
-    		return;
-    	}
-    	occupiers.remove(occupier);
-    	occupiers.trimToSize();
+        if (occupier == null) {
+            occupiers.clear();
+            occupiers.trimToSize();
+            return;
+        }
+        occupiers.remove(occupier);
+        occupiers.trimToSize();
     }
     
 
     
     /**
      * Get a Life object this Cell contains of this type.
-     * @param type to select
-     * @param exception to not select
+     * @param type to select.
+     * @param classException - array of Matter types to not select.
+     * @param objectException - an Object to not select.
      * @return Life of this type found.
      */
     public final Life getLife(final Matter type, 
-    		final Matter[] classException, 
-    		final Object objectException) {
-    	
-    	for (Life occupier : occupiers) {
-    		
-    		// If we have one of the desired types.
-    		if (occupier != null && type == occupier.type 
-    			&&  occupier != objectException) {
-    			if (classException == null) {
-    				return occupier;
-    			}
-    			boolean valid = true;
-    			for (int i = 0; i < classException.length; i++) {
-    				if(classException[i] == occupier.type) {
-    					valid = false;
-    				}	
-    			}
-    			if(valid) {
-    				return occupier;
-    			}
-    		}
-    	}
-    	return null;
-    	
+            final Matter[] classException, 
+            final Object objectException) {
+        
+        for (Life occupier : occupiers) {
+            
+            // If we have one of the desired types.
+            if (occupier != null && type == occupier.type 
+                    &&  occupier != objectException) {
+                if (classException == null) {
+                    return occupier;
+                }
+                boolean valid = true;
+                for (int i = 0; i < classException.length; i++) {
+                    if (classException[i] == occupier.type) {
+                        valid = false;
+                    }
+                }
+                if (valid) {
+                    return occupier;
+                }
+            }
+        }
+        return null;
+
     }
     
     /**
      * Get a Life object this Cell contains of these types.
-     * @param types to select
-     * @param exception to not select
+     * @param types of Matter Enums to select.
+     * @param classException - Matter Enum types to not select.
+     * @param objectException - Object to not select.
      * @return Life of this type found.
      */
-    public final Life getLife(final Matter[] types, final Matter[] classException, final Object objectException) {
-    	for (int i = 0; i < types.length; i++) {
-    		Life thisType = getLife(types[i], classException, objectException);
-    		if (thisType != null) {
-    			return thisType;
-    		}
-    	}
-    	return null;
+    public final Life getLife(final Matter[] types, 
+            final Matter[] classException, final Object objectException) {
+        for (int i = 0; i < types.length; i++) {
+            Life thisType = getLife(types[i], classException, objectException);
+            if (thisType != null) {
+                return thisType;
+            }
+        }
+        return null;
     }
     
     
@@ -311,8 +307,8 @@ public abstract class Cell {
      * @return Life of this type found.
      */
     public final Life getLife(final Matter type) {
-    	// boolean is a dummy class...
-    	return getLife(type, null, null);
+        // boolean is a dummy class...
+        return getLife(type, null, null);
     }
     
 
@@ -322,61 +318,62 @@ public abstract class Cell {
      * @return Life of this type found.
      */
     public final Life getLife(final Matter[] types) {
-    	return getLife(types, null, null);
+        return getLife(types, null, null);
     }
     
     /**
      * Returns true if this Cell has a Life of this type
-     * @param types to check
-     * @param exception to not want
+     * @param type of Matter to check for.
+     * @param classException of Matter to not check for.
+     * @param objectException - object to not choose.
      * @return true if it has this, otherwise false.
      */
-    public final boolean has(final Matter type, final Matter[] classException, final Object objectException) {
-    	return getLife(type, classException, objectException) != null;
+    public final boolean has(final Matter type, 
+            final Matter[] classException, final Object objectException) {
+        return getLife(type, classException, objectException) != null;
     }
     
 
     
     /**
      * Returns true if this Cell has a Life of one of these types
-     * @param types to check
-     * @param exception to not want
+     * @param types of Matter to check for.
+     * @param exceptionClass - Array of Matter Enums to not check for.
+     * @param exceptionObject - object to not choose.
      * @return true if it has this, otherwise false.
      */
     public final boolean has(final Matter[] types, 
-    		final Matter[] exceptionClass, final Object exceptionObject ) {
-    	if (types == null) {
-    		return false;
-    	}
-    	for (int i = 0; i < types.length; i++) {
-    		if (this.has(types[i], exceptionClass, exceptionObject)) {
-    			return true;
-    		}
-    	}
-    	return false;
+            final Matter[] exceptionClass, final Object exceptionObject ) {
+        if (types == null) {
+            return false;
+        }
+        for (int i = 0; i < types.length; i++) {
+            if (this.has(types[i], exceptionClass, exceptionObject)) {
+                return true;
+            }
+        }
+        return false;
     }
     
 
 
     /**
      * Returns true if this Cell has a Life of this type
-     * @param types to check
-     * @param exception to not want
+     * @param type of Matter to check for.
      * @return true if it has this, otherwise false.
      */
     public final boolean has(final Matter type) {
-    	return getLife(type, null, null) != null;
+        return getLife(type, null, null) != null;
     }
     
     
     /**
      * Returns true if this Cell has a Life of one of these types
      * @param types to check
-     * @param exception to not want (can be null)
      * @return true if it has this, otherwise false.
      */
     public final boolean has(final Matter[] types) {
-    	return has(types, null, null);
+        return has(types, null, null);
     }
     
     
@@ -386,15 +383,15 @@ public abstract class Cell {
      * @return true if this is one of the given types.
      */
     public final boolean is(final Matter[] types) {
-    	if (types == null) {
-    		return false;
-    	}
-    	for (int i = 0; i < types.length; i++) {
-    		if (types[i] == terrain) {
-    			return true;
-    		}
-    	}
-    	return false;
+        if (types == null) {
+            return false;
+        }
+        for (int i = 0; i < types.length; i++) {
+            if (types[i] == terrain) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**
@@ -403,30 +400,20 @@ public abstract class Cell {
      * @return true if this is or has one of these types.
      */
     public final boolean hasOrIs(final Matter[] types) {
-    	
-    	if (types == null) {
-    		if (World.DEBUG && terrain == Terrain.WATER) {
-    			System.out.println(" CELL "+this+" hasOrIs(null)?... returning false");
-    		}
-    		return false;
-    	}
-    	if (World.DEBUG && terrain == Terrain.WATER) {
-    		System.out.println(" CELL "+this+" hasOrIs("+Arrays.asList(types)+")? "+(this.has(types) || this.is(types)));
-    	}
-    	return (this.has(types) || this.is(types));
+        
+        if (types == null) {
+            if (World.DEBUG && terrain == Terrain.WATER) {
+                System.out.println(" CELL " + this + "  hasOrIs(null)?... returning false");
+            }
+            return false;
+        }
+        if (World.DEBUG && terrain == Terrain.WATER) {
+            System.out.println(" CELL "
+                    + this + " hasOrIs(" + Arrays.asList(types) + ")? "
+                    + (this.has(types) || this.is(types)));
+        }
+        return (this.has(types) || this.is(types));
     }
-    
-
-    
-    
-    /**
-     * Gets the size of this Cell.
-     * @return the size as a Dimension.
-     */
-	public Dimension getSize() {
-	//	return super.getSize(null);
-		return null;
-	}
     
     /**
      * Gets the Row this Cell belongs to.
@@ -498,9 +485,9 @@ public abstract class Cell {
      */
     public String getText() {
     
-    	Life occupier = occupiers.size() == 0 ? null : 
-    		occupiers.get(occupiers.size() - 1);
-    	
+        Life occupier = occupiers.size() == 0 ? null : 
+            occupiers.get(occupiers.size() - 1);
+
         if (World.SHOW_FOOD
             && occupier != null) {
           
@@ -532,57 +519,56 @@ public abstract class Cell {
     
 
     @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((world == null) ? 0 : world.hashCode());
-		result = prime * result + ((getShape() == null) ? 0 : getShape().hashCode());
-		result = prime * result + ((location == null) ? 0 : location.hashCode());
-			
-		
-		return result;
-	}
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((world == null) ? 0 : world.hashCode());
+        result = prime * result +  getClass().hashCode();
+        result = prime * result + ((location == null) ? 0 : location.hashCode());
+        
+        return result;
+    }
 
     
     @Override
     public boolean equals(final Object other) {
-    	if (other == null) {
-    		return false;
-    	}
-    	if (other == this) {
-    		return true;
-    	}
-    	if (!(other instanceof Cell)) {
-    		return false;
-    	}
-    	
-    	Cell otherCell = (Cell)other;
-    	
-    	// Checking if it's the same world, not equivalent.
-    	// Shape denotes whether this object is a SquareCell, HexCell etc.
-    	if (  this.getWorld() == otherCell.getWorld()
-    	   && this.getShape().equals(otherCell.getShape())
-    	   && this.getLocation().equals(otherCell.getLocation()) ) {
-    		return true;
-    	}
-    	
-    	return false;
+        if (other == null) {
+            return false;
+        }
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof Cell)) {
+            return false;
+        }
+        
+        Cell otherCell = (Cell)other;
+        
+        // Checking if it's the same world, not equivalent.
+        // Shape denotes whether this object is a SquareCell, HexCell etc.
+        if (  this.getWorld() == otherCell.getWorld()
+                && this.getClass().equals(otherCell.getClass())
+                && this.getLocation().equals(otherCell.getLocation()) ) {
+            return true;
+        }
+        
+        return false;
     }
     
 
-	/**
+    /**
      * Gets the String of this SquareCell object.
      * @return String representing this object.
      */
     @Override
     public String toString() {
         //String life = getLives().toString();
-    	
-    	String string = "(" + terrain.name() + ") ";
-    	
-    	string += " @" + location.x + "," + location.y;
-
-    	return string;
+        
+        String string = "(" + terrain.name() + ") ";
+        
+        string += " @" + location.x + "," + location.y;
+        
+        return string;
     }
     
 }

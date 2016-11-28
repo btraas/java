@@ -5,12 +5,8 @@ package ca.bcit.comp2526.a2b;
 /**
  * <p>Square Cells within a world.</p>
  * 
- * <p>Each Cell has 0 or 1 Life,
- *  each Life must have a Cell
- *  (or it's dead with no reference).</p>
- * 
  * @author Brayden Traas
- * @version 2016-10-22
+ * @version 2
  */
 public class SquareCell extends Cell {
    
@@ -26,15 +22,8 @@ public class SquareCell extends Cell {
      */
     public SquareCell(final World<SquareCell> world, int column, int row) {
         super(world, column, row);
-        init();
     }
   
-    
- 
-    @Override
-    public Class<SquareCell> getShape() {
-    	return SquareCell.class;
-    }
     
     /**
      * Gets the distance between this Cell and another. 
@@ -49,11 +38,6 @@ public class SquareCell extends Cell {
     }
 
 
-
-	@Override
-	public SquareCell[][] get2DArray(int columns, int rows) {
-		return new SquareCell[columns][rows];
-	}
  
 
 

@@ -12,9 +12,8 @@ import java.util.Random;
 /**
  * <p>A life.</p>
  * 
- * <p>Parent class of Animal, Plant etc.
- *  A life belongs to a Cell, and
- *  a cell contains 0 or 1 Life.</p>
+ * <p>A life belongs to a Cell, and
+ *  a cell contains 0+ Lives.</p>
  *  
  * <p>If no Cell contains this life,
  *  it's considered dead. Coincidentally,
@@ -23,36 +22,17 @@ import java.util.Random;
  *  memory.</p>
  * 
  * @author Brayden Traas
- * @version 2016-10-22
+ * @version 2016-11-22
  */
 public final class Life implements Moveable<Cell> {
 
-	// private ArrayList<Point> points;
-	
-    private static final int COLOR_VARIATION = 80;
+    private static final int COLOR_VARIATION = 120;
     private static final double DARKEN_AMOUNT = (Settings.getInt("darkenPercent")) / 100.0;
     private static final int MAX_COLOR = 255;
     private static final Matter[] NONEMPTY_MATTER = Matter.combine(
-    		Terrain.getDifficults(), 
-    		LifeType.values());
-    /*
-    static {
-    	ArrayList<Matter> all = new ArrayList<Matter>();
-    	all.addAll(Arrays.asList(Terrain.getDifficults()));
-    	all.addAll(Arrays.asList(LifeType.values()));
-    	
-    	
-    	Matter[] allMatter = new Matter[all.size()];
-    	int i = 0;
-    	for (Matter matter : all) {
-    		allMatter[i++] = matter;
-    	}
-    	
-    	NONEMPTY_MATTER = allMatter;
+        Terrain.getDifficults(), 
+        LifeType.values());
   
-    }
-  	*/
-    
     protected LifeType type;
     
     private Color originalColor;
@@ -66,19 +46,23 @@ public final class Life implements Moveable<Cell> {
  
     /**
      * Creates a Life.
-     * @param LifeTools.Type of this Life
+     * @param type - LifeTools.Type of this Life
      * @param location (Cell) of this Life
      */
     public Life(final LifeTools.Type type, final Cell location) {
-    	this(LifeTools.getLifeType(type), location);
+        this(LifeTools.getLifeType(type), location);
     }
     
+    /*
+     * Does the heavy lifting of the constructing a Life.
+     * Also called internally.
+     */
     private Life(final LifeType type, final Cell location) {
-    	this.type = type;
-    	this.color = varyColor(
-        		location.getWorld().getSeed(), 
-        		this.type.color);
-        
+        this.type = type;
+        this.color = varyColor(
+            location.getWorld().getSeed(), 
+            this.type.color);
+
         // must save since we don't change the Enum's color.
         this.originalColor = this.color; 
         
@@ -87,38 +71,54 @@ public final class Life implements Moveable<Cell> {
         this.life = this.type.initFood;
     }
     
+    /*
+     * Creates a new life in the given location.
+     * Used internally for reproduction.
+     */
     private Life create(final Cell location) {
-    	return new Life(type, location);
+        return new Life(type, location);
     }
     
     /**  
-     * Can be overriden. Explicitly specify what happens to this type of Life
-     *  At the end of each turn.
+     * Processes this Life's turn. Darken, decrease life, move, eat, reproduce.
      * 
      */
     public void processTurn() {
-    	
-    	if(World.DEBUG) {
-    		System.out.println("Processing turn for a " + this.getClass().getSimpleName() + " in " + getCell());
-    	}
-    	
-    	this.darken();
-    	if (--life < 0) {
+        
+        if (World.DEBUG) {
+            System.out.println("Processing turn for a " 
+                    + this.getClass().getSimpleName() + " in " + getCell());
+        }
+        
+        this.darken();
+        if (--life < 0) {
             if (this.getCell() != null) {
-            	this.getCell().removeLife(this);
+                this.getCell().removeLife(this);
             }
             this.destroy();
             return;
         }
-    
-    	for (int i = getMoveMin(); i <= getMoveMax(); i++) {
-    		this.move();
-    	}
         
-        this.eat();
+        int movesLeft = getMoveMax();
+        
+        if (movesLeft > 0) {
+            this.move();
+            movesLeft--;
+        }
+        
+        boolean eaten = this.eat();
+        
+        // if not eaten and can still move
+        while (!eaten && movesLeft > 0) {
+            this.move();
+            movesLeft--;
+            eaten = this.eat();
+        }
+
+        
         
         this.reproduce();
-    	
+
     }
     
     /**
@@ -126,7 +126,7 @@ public final class Life implements Moveable<Cell> {
      * @return true if this Life can move.
      */
     public boolean moveable() {
-    	return getMoveMax() > 0;
+        return getMoveMax() > 0;
     }
     
     /**
@@ -136,7 +136,7 @@ public final class Life implements Moveable<Cell> {
         Cell oldCell = this.getCell();
         this.setCell(null);
         if (oldCell != null) {
-        	oldCell.removeLife(null); // remove all
+            oldCell.removeLife(this); // remove this life
         }
     }
     
@@ -170,7 +170,7 @@ public final class Life implements Moveable<Cell> {
      * @return the previous location
      */
     public Cell getPreviousCell() {
-    	return previousLocation;
+        return previousLocation;
     }
     
     
@@ -187,7 +187,7 @@ public final class Life implements Moveable<Cell> {
      * @return incompatible types.
      */
     public Matter[] getIncompatibleTypes() {
-    	// System.out.println(type + " incompatible " + Arrays.asList(type.getIncompatibleTypes()));
+        // System.out.println(type + " incompatible " + Arrays.asList(type.getIncompatibleTypes()));
         return type.getIncompatibleTypes();
     }
     
@@ -196,46 +196,45 @@ public final class Life implements Moveable<Cell> {
      * @return incompatible types.
      */
     public Matter[] getInvalidMoveToTypes() {
-    	return getIncompatibleTypes();
+        return getIncompatibleTypes();
     }
     
     /**
      * Gets the possibilities to move to from here.
-     * @param types - allowable types we can move into.
-     * @param distanceMin - min distance possible to move.
-     * @param distanceMax - max distance possible to move.
+     * @param min - min distance possible to move.
+     * @param max - max distance possible to move.
      * @return an array of possible destination Cells.
      */
     @Override
     public Cell[] getMoveToPossibilities(int min, int max) {
         
-    	Matter[] invalidTypes = type.getIncompatibleTypes();
-    	List<Cell> cells = new ArrayList<Cell>();
+        Matter[] invalidTypes = type.getIncompatibleTypes();
+        List<Cell> cells = new ArrayList<Cell>();
         
         
         Cell[] possibilities = getCell().getNearbyCells(min, max);
                 
-        for (int i=0; i<possibilities.length; i++ ) {
+        for (int i = 0; i < possibilities.length; i++ ) {
           
             Cell newCell = possibilities[i];
           
             // If the found cell != this cell
             if (newCell != null && newCell != getCell()) {
                 
-            	// If defined types is null, we're allowing all types.
+                // If defined types is null, we're allowing all types.
                 if ( invalidTypes == null 
-                	|| invalidTypes.length == 0) {
+                        || invalidTypes.length == 0) {
                     cells.add(newCell);
                     continue;
                 }
-            	
+            
                 boolean occupiersValid = true;
                 boolean terrainValid = true;
                 
                 for (int k = 0; k < type.getIncompatibleTypes().length; k++) {
-                	// if one of the lives is this type, or this cell is this type.
+                    // if one of the lives is this type, or this cell is this type.
                     if (newCell.has(invalidTypes[k])) {
-                    	occupiersValid = false;
+                        occupiersValid = false;
                     } 
                     if (newCell.is(new Matter[]{ invalidTypes[k] })) {
                         terrainValid = false;
@@ -243,7 +242,7 @@ public final class Life implements Moveable<Cell> {
                 }
                 
                 if (occupiersValid && terrainValid) {
-                	cells.add(newCell);
+                    cells.add(newCell);
                 }
             }
         }
@@ -257,7 +256,7 @@ public final class Life implements Moveable<Cell> {
      * 
      */
     protected void reproduce() {
-    	// System.out.println("Reproducing "+this.getClass().getSimpleName());
+        // System.out.println("Reproducing "+this.getClass().getSimpleName());
         Cell thisCell = getCell();
         if (thisCell == null) {
             System.err.println("REPRODUCE WHEN CELL IS NULL!?!?!");
@@ -274,40 +273,34 @@ public final class Life implements Moveable<Cell> {
         
         // Gets adjacent cells that are-a or contain-a type we can eat.
         Cell[] nearbyFood    = getCell().getAdjacentCellsWith(type.getFoodTypes());
-        
-       if (World.DEBUG && this.type == LifeType.PLANT) {
-    	   System.out.println("REPRODUCING PLANT "
-    		   + thisCell.toString()+" cells: " + getCell().getAdjacentCells().length
-    		   + " spec: " + nearbySpecies.length + "/" + type.reproduction.minNeighbors
-    		   + " empty: " + nearbyEmpty.length + "/" + type.reproduction.minEmpty
-    		   + " food: " + nearbyFood.length + "/" + type.reproduction.minFood);
-       }
-       
+            
         if (    nearbySpecies.length < type.reproduction.minNeighbors
             ||  nearbyEmpty.length < type.reproduction.minEmpty
             ||  nearbyFood.length < type.reproduction.minFood) {
             return;
         }
         if (World.DEBUG) {
-        	System.out.println("DING DING Reproducing "+this);
+            System.out.println("Reproducing " + this);
         }
         
         int offspringCount = getCell().getWorld().getSeed().nextInt(
             (type.reproduction.maxSpawn - type.reproduction.minSpawn) + 1) 
-        		+ type.reproduction.minSpawn;
+                + type.reproduction.minSpawn;
         
-        System.out.println("reproducing "+offspringCount+" "+type+"s");
+        if (World.DEBUG) {
+            System.out.println("reproducing " + offspringCount + " " + type + "s");
+        }
         
         ArrayList<Cell> openSpots = new ArrayList<Cell>(Arrays.asList(nearbyEmpty));
         
         offspringCount = Math.min(offspringCount, openSpots.size());
         for (int i = 0; i < offspringCount; i++) {
           
-        	if (World.DEBUG) {
-        		for(int j=0; j<nearbyEmpty.length; j++) {
-                    System.out.println(" "+nearbyEmpty[j]);
+            if (World.DEBUG) {
+                for (int j = 0; j < nearbyEmpty.length; j++) {
+                    System.out.println(" " + nearbyEmpty[j]);
                 }
-        	}
+            }
             
           
             int chosenIndex = seed.nextInt(openSpots.size());
@@ -315,15 +308,15 @@ public final class Life implements Moveable<Cell> {
             
             chosen.addLife(create(chosen));
             if (World.DEBUG) {
-            	System.out.println("REPRODUCED FROM PLANT "+this.getCell().toString()+" TO "+chosen.toString());
+                System.out.println("REPRODUCED FROM PLANT " + this.getCell().toString() 
+                        + " TO " + chosen.toString());
             }
             
             openSpots.remove(chosenIndex);
         }
         
         
-       // System.out.println("REPRODUCING PLANT "+thisCell.toString()+" nearby food: "+nearbyFood.length+": nearbyplants:"+nearbySpecies.length + " nearbyempty:" + nearbyEmpty.length);
-    
+      
     }
     
     
@@ -344,15 +337,15 @@ public final class Life implements Moveable<Cell> {
     }
     
     private void darken() {
-    	int red 	= (int)(color.getRed() * DARKEN_AMOUNT);
-    	int green 	= (int)(color.getGreen() * DARKEN_AMOUNT);
-    	int blue    = (int)(color.getBlue() * DARKEN_AMOUNT);
+        int red     = (int)(color.getRed() * DARKEN_AMOUNT);
+        int green   = (int)(color.getGreen() * DARKEN_AMOUNT);
+        int blue    = (int)(color.getBlue() * DARKEN_AMOUNT);
     
-    	
-    	this.color = new Color(
-    						colorBound(red),
-    						colorBound(green),
-    						colorBound(blue));
+        
+        this.color = new Color(
+            colorBound(red),
+            colorBound(green),
+            colorBound(blue));
     }
     
    
@@ -376,10 +369,10 @@ public final class Life implements Moveable<Cell> {
         // getMoveToLifeTypes() and getMoveDistance() must be defined in child class, 
         //  as per interface.
         // return this.getMoveToPossibilities(getMoveMin(), getMoveMax());
-    	return this.getMoveToPossibilities(getMoveMin(), 1);
+        return this.getMoveToPossibilities(getMoveMin(), 1);
     }
     
-	/**
+    /**
      * Moves an animal to any valid adjacent cell at random.
      * Uses a seed that's dependent on the World object.
      */
@@ -396,10 +389,6 @@ public final class Life implements Moveable<Cell> {
         //MoveDecision decision = this.getMoveDecision(seed, getMoveOptions());
         Cell newCell = this.decideMove(seed, getMoveOptions()); //decision.decide();
         
-        //if (getClass().getSimpleName().equals("Herbivore")) System.out.println("  chosen: "+newCell+" containing: "+(newCell==null?"":newCell.getLives()));
-        
-        //System.out.println();
-        
         
         //  System.out.println("Old cell: "+this.getCell().toString());
         
@@ -409,7 +398,7 @@ public final class Life implements Moveable<Cell> {
       
         if (newCell == null) {
             if (World.DEBUG) {
-            	System.err.println("NO MOVES");
+                System.err.println("NO MOVES");
             }
             return;
         }
@@ -429,87 +418,85 @@ public final class Life implements Moveable<Cell> {
         this.getCell().addLife(this);
         
         if (World.DEBUG && this.getCell().terrain == Terrain.WATER) {
-        	System.out.println(getCell() + " NOW CONTAINS A " + getClass().getSimpleName());
+            System.out.println(getCell() + " NOW CONTAINS A " + getClass().getSimpleName());
         }
     }
 
-	@Override
-	public int getMoveMin() {
-		return type.move.min;
-	}
+    @Override
+    public int getMoveMin() {
+        return type.move.min;
+    }
+    
+    @Override
+    public int getMoveMax() {
+        return type.move.max;
+    }
 
-	@Override
-	public int getMoveMax() {
-		return type.move.max;
-	}
-
-	@Override
-	public Cell decideMove(Random seed, Cell[] options) {
-		
-		// Either life left or cap
-		int senseDistance = Math.max(
-				Settings.getInt("maxSenseDistance"), life+1);
-		
-		// Can't move
-		if (type.move.max < 1) {
-			return null;
-		}
-		
-		// Can move more than one space.
-		if (type.move.max > 1) {
-			return (new DistanceDecision(seed, options, 
-					(Matter[])type.getFoodTypes(), 
-					type.getAvoid(), this, 
-					senseDistance)).decide();
-		}
-		
-		Matter[] avoid = type.getAvoid();
-		
-		return (new NearbyDecision(
-				seed, options, type.getFoodTypes(), avoid)).decide();  
+    @Override
+    public Cell decideMove(Random seed, Cell[] options) {
         
-	}
-	
-	/**
+        // Either life left or cap
+        int senseDistance = Math.max(Settings.getInt("maxSenseDistance"), life + 1);
+        
+        // Can't move
+        if (type.move.max < 1) {
+            return null;
+        }
+        
+        // Can move more than one space.
+        if (type.move.max > 1) {
+            return (new DistanceDecision(seed, options, 
+                    (Matter[])type.getFoodTypes(), 
+                    type.getAvoid(), this, 
+                    senseDistance)).decide();
+        }
+        
+        Matter[] avoid = type.getAvoid();
+        
+        return (new NearbyDecision(
+                seed, options, type.getFoodTypes(), avoid)).decide();  
+    
+    }
+
+    /**
      * Defines what happens when an animal eats.
      */
-    public final void eat() {
-    	
-    	boolean eaten = false;
-    	
-    	// See if there's food in this Cell. Eat it if so.
-    	// But not this one!
-    	// has() -> one of food types, not null, not this.
-		if (this.getCell().has(type.getFoodTypes(), null, this)) {
-    		Life food = this.getCell().getLife(type.getFoodTypes());
-    		if (World.DEBUG) {
-    			System.out.println("  Eating "+food.getClass().getSimpleName());
-    		}
-    		this.getCell().removeLife(food);
-    		
-    		eaten = true;
-    		
-    	// See if this Cell is edible. Eat it if so.
-    	//  currently, a Cell doesn't change when eaten.
-    	} else if (this.getCell().is(type.getFoodTypes())) {
-    		eaten = true;
-    	}
-    	
-    	if (eaten) {
-    		this.life = type.initFood;
-    		this.color = originalColor;
-    	}
-    	
+    public final boolean eat() {
+        
+        boolean eaten = false;
+        
+        // See if there's food in this Cell. Eat it if so.
+        // But not this one!
+        // has() -> one of food types, not null, not this.
+        if (this.getCell().has(type.getFoodTypes(), null, this)) {
+            Life food = this.getCell().getLife(type.getFoodTypes());
+            if (World.DEBUG) {
+                System.out.println("  Eating " + food.getClass().getSimpleName());
+            }
+            this.getCell().removeLife(food);
+            
+            eaten = true;
+            
+        // See if this Cell is edible. Eat it if so.
+        //  currently, a Cell doesn't change when eaten.
+        } else if (this.getCell().is(type.getFoodTypes())) {
+            eaten = true;
+        }
+        
+        if (eaten) {
+            this.life = type.initFood;
+            this.color = originalColor;
+        }
+        
+        return eaten;
+
     } 
     
     @Override
     public String toString() {
-    	
-    	Point point = getCell() == null ? new Point(0, 0) : getCell().getLocation();
+    
+        Point point = getCell() == null ? new Point(0, 0) : getCell().getLocation();
         return type + " Life:" + getLifeLeft() 
-        	+ " Loc:"+point.x+","+point.y;
+            + " Loc:" + point.x + "," + point.y;
     }
-
-	
-	
 }

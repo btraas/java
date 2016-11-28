@@ -19,7 +19,7 @@ import java.util.Random;
  * decisions.</p>
  *  
  * @author Brayden Traas
- * @version 2016-10-22
+ * @version 2
  */
 public class MoveDecision<DestinationT> {
     
