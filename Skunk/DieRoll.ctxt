@@ -1,0 +1,8 @@
+#BlueJ class context
+comment0.params=
+comment0.target=DieRoll()
+comment1.params=sides
+comment1.target=DieRoll(int)
+comment2.params=
+comment2.target=int\ value()
+numComments=3

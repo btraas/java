@@ -1,0 +1,23 @@
+#BlueJ class context
+comment0.params=in
+comment0.target=java.lang.String\ alNum(java.lang.String)
+comment0.text=\r\n\ @param\ input\ string\ to\ convert\r\n\ @return\ output\ alphanumeric\ string\r\n
+comment1.params=in
+comment1.target=java.lang.String\ alNumUC(java.lang.String)
+comment1.text=\r\n\ @param\ input\ string\ to\ convert\r\n\ @return\ Uppercase\ Alphanumeric\ string\r\n
+comment2.params=in
+comment2.target=java.lang.String\ alNumLC(java.lang.String)
+comment2.text=\r\n\ @param\ input\ string\ to\ convert\r\n\ @return\ Lowercase\ Alphanumeric\r\n
+comment3.params=in
+comment3.target=java.lang.String\ alpha(java.lang.String)
+comment3.text=\r\n\ @param\ input\ string\ to\ convert\r\n\ @return\ A-Z\ characters\r\n
+comment4.params=in
+comment4.target=java.lang.String\ alphaUC(java.lang.String)
+comment4.text=\r\n\ @param\ input\ string\ to\ convert\r\n\ @return\ A-Z\ characters\ in\ uppercase\r\n
+comment5.params=in
+comment5.target=java.lang.String\ alphaLC(java.lang.String)
+comment5.text=\r\n\ @param\ input\ string\ to\ convert\r\n\ @return\ Lowercase\ A-Z\r\n
+comment6.params=in
+comment6.target=java.lang.String\ numeric(java.lang.String)
+comment6.text=\r\n\ @param\ input\ string\ to\ convert\r\n\ @return\ Numeric\ chars\ only\r\n
+numComments=7
